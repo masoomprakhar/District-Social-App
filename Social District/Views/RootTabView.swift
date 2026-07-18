@@ -14,16 +14,10 @@ struct RootTabView: View {
             TabView(selection: $selection) {
                 // HOME
                 NavigationStack {
-                    HomeView(
-                        onOpenSocialize: { selection = .socialize },
-                        onSelectCategory: { category in
-                            selection = .socialize
-                            socializePath.append(AppRoute.socializeCategory(category))
-                        }
-                    )
-                    #if os(iOS)
-                    .toolbar(.hidden, for: .navigationBar)
-                    #endif
+                    HomeView(onOpenSocialize: { selection = .socialize })
+                        #if os(iOS)
+                        .toolbar(.hidden, for: .navigationBar)
+                        #endif
                 }
                 .tag(AppTab.home)
 
