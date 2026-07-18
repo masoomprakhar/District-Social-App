@@ -11,6 +11,8 @@ final class SocializeStore: ObservableObject {
     @Published private(set) var standardBookingIDs: Set<UUID> = []
     @Published private(set) var joinedExperienceIDs: Set<UUID> = []
     @Published private(set) var matchedBookingIDs: Set<UUID> = []
+    @Published private(set) var requestedRoomIDs: Set<UUID> = []
+    @Published private(set) var requestedExperienceIDs: Set<UUID> = []
 
     private let experienceSuggestions: [UUID: ExperienceGroupSuggestion]
 
@@ -217,6 +219,35 @@ final class SocializeStore: ObservableObject {
         rooms.first { $0.id == id }
     }
 
+    @discardableResult
+    func requestToJoin(roomID: UUID) -> Bool {
+        guard
+            let room = room(id: roomID),
+            !room.isFull,
+            !joinedRoomIDs.contains(roomID),
+            !requestedRoomIDs.contains(roomID)
+        else {
+            return false
+        }
+
+        requestedRoomIDs.insert(roomID)
+        return true
+    }
+
+    @discardableResult
+    func requestToJoinExperience(listingID: UUID) -> Bool {
+        guard
+            experienceSuggestions[listingID] != nil,
+            !joinedExperienceIDs.contains(listingID),
+            !requestedExperienceIDs.contains(listingID)
+        else {
+            return false
+        }
+
+        requestedExperienceIDs.insert(listingID)
+        return true
+    }
+
     func join(roomID: UUID) -> JoinReceipt? {
         guard
             let index = rooms.firstIndex(where: { $0.id == roomID }),
@@ -358,15 +389,15 @@ private extension SocializeStore {
             ),
             SocializeRoom(
                 activityType: .movie,
-                title: "Late-night horror crew",
+                title: "Avatar: Fire and Ash",
                 venueName: "PVR Ambience Mall",
                 venueArea: "Vasant Kunj, Delhi",
-                dateTime: futureDate(days: 2, hour: 22, minute: 15),
+                dateTime: futureDate(days: 2, hour: 21, minute: 15),
                 hostName: "Vihaan",
                 capacity: 5,
-                joinedCount: 1,
-                members: [v],
-                basePrice: 420,
+                joinedCount: 2,
+                members: [v, n],
+                basePrice: 650,
                 discountTiers: discountTiers(for: 5)
             ),
             SocializeRoom(
@@ -412,135 +443,196 @@ private extension SocializeStore {
     }()
 
     static let mockListings: [SocializeListing] = [
+        // Dining
         SocializeListing(
             category: .dining,
-            title: "Italian dinner for two",
+            title: "Italian Dinner Table",
             venueName: "Café Delhi Heights",
             venueArea: "Cyber Hub, Gurugram",
-            detail: "Pasta, pizza and easy conversations",
+            detail: "Italian · Casual dining · Dinner",
             pricePerPerson: 1200,
             rating: 4.6,
             systemImage: "fork.knife"
         ),
         SocializeListing(
             category: .dining,
-            title: "Sushi tasting table",
+            title: "Sushi & Dim Sum Night",
             venueName: "Yum Yum Cha",
             venueArea: "Khan Market, Delhi",
-            detail: "Shared plates and a curated tasting menu",
+            detail: "Pan-Asian · Shared plates",
             pricePerPerson: 1500,
             rating: 4.7,
             systemImage: "fish.fill"
         ),
         SocializeListing(
             category: .dining,
-            title: "North Indian dinner",
+            title: "Heritage North Indian Dinner",
             venueName: "Daryaganj",
             venueArea: "Connaught Place, Delhi",
-            detail: "Comfort food and a relaxed table",
+            detail: "North Indian · Heritage recipes",
             pricePerPerson: 1000,
             rating: 4.5,
             systemImage: "takeoutbag.and.cup.and.straw.fill"
         ),
+
+        // Movies
         SocializeListing(
             category: .movies,
             title: "Dune: Part Three",
             venueName: "PVR Select Citywalk",
             venueArea: "Saket, Delhi",
-            detail: "IMAX · English · U/A",
+            detail: "IMAX 2D · English · 2h 46m",
             pricePerPerson: 520,
             rating: 4.8,
             systemImage: "movieclapper.fill"
         ),
         SocializeListing(
             category: .movies,
-            title: "Interstellar re-release",
+            title: "Interstellar",
             venueName: "INOX Nehru Place",
             venueArea: "Nehru Place, Delhi",
-            detail: "IMAX · English · U/A",
+            detail: "IMAX 70mm · English · 2h 49m",
             pricePerPerson: 480,
             rating: 4.9,
             systemImage: "film.fill"
         ),
         SocializeListing(
+            category: .movies,
+            title: "Avatar: Fire and Ash",
+            venueName: "PVR Ambience Mall",
+            venueArea: "Vasant Kunj, Delhi",
+            detail: "3D · English · 3h 05m",
+            pricePerPerson: 650,
+            rating: 4.7,
+            systemImage: "sparkles.tv.fill"
+        ),
+
+        // Events
+        SocializeListing(
             category: .events,
-            title: "Stand-up comedy night",
+            title: "Friday Night Stand-up",
             venueName: "The Laugh Store",
-            venueArea: "Vegas Mall, Dwarka",
-            detail: "90-minute live comedy showcase",
+            venueArea: "DLF CyberHub, Gurugram",
+            detail: "Live comedy · 18+ · 90 min",
             pricePerPerson: 799,
             rating: 4.5,
             systemImage: "mic.fill"
         ),
         SocializeListing(
             category: .events,
-            title: "Indie music weekend",
+            title: "Indie Nights: Live Sessions",
             venueName: "The Piano Man",
-            venueArea: "Eldeco Centre, Delhi",
-            detail: "Live indie set · standing entry",
+            venueArea: "Safdarjung, Delhi",
+            detail: "Live music · Jazz & indie",
             pricePerPerson: 999,
             rating: 4.7,
             systemImage: "music.note"
         ),
         SocializeListing(
+            category: .events,
+            title: "Sufi Evening",
+            venueName: "Sunder Nursery",
+            venueArea: "Nizamuddin, Delhi",
+            detail: "Open-air concert · Sundown show",
+            pricePerPerson: 599,
+            rating: 4.8,
+            systemImage: "music.mic"
+        ),
+
+        // Stores
+        SocializeListing(
             category: .stores,
-            title: "Streetwear shopping walk",
+            title: "Streetwear Drop Day",
             venueName: "Select Citywalk",
             venueArea: "Saket, Delhi",
-            detail: "Explore new drops and shop together",
+            detail: "Guided store walk · New collections",
             pricePerPerson: 300,
             rating: 4.4,
             systemImage: "bag.fill"
         ),
         SocializeListing(
             category: .stores,
-            title: "Bookstore & coffee trail",
+            title: "Books & Coffee Trail",
             venueName: "Bahrisons Booksellers",
             venueArea: "Khan Market, Delhi",
-            detail: "Browse books, then grab coffee",
+            detail: "Bookstore crawl · Ends at a café",
             pricePerPerson: 450,
             rating: 4.8,
             systemImage: "books.vertical.fill"
         ),
         SocializeListing(
+            category: .stores,
+            title: "Vintage & Thrift Hunt",
+            venueName: "Sarojini Nagar Market",
+            venueArea: "South Delhi",
+            detail: "Curated market walk · 2 hrs",
+            pricePerPerson: 250,
+            rating: 4.5,
+            systemImage: "tshirt.fill"
+        ),
+
+        // Activities
+        SocializeListing(
             category: .activities,
-            title: "Lodhi art district walk",
+            title: "Lodhi Art District Walk",
             venueName: "Lodhi Colony",
             venueArea: "New Delhi",
-            detail: "Guided murals and photography walk",
+            detail: "Guided murals & photo walk · 90 min",
             pricePerPerson: 650,
             rating: 4.7,
             systemImage: "figure.walk"
         ),
         SocializeListing(
             category: .activities,
-            title: "Pottery workshop",
+            title: "Wheel Pottery Session",
             venueName: "The Clay Company",
-            venueArea: "Nehru Place, Delhi",
-            detail: "Beginner wheel pottery session",
+            venueArea: "Shahpur Jat, Delhi",
+            detail: "Beginner friendly · Materials included",
             pricePerPerson: 1400,
             rating: 4.6,
             systemImage: "paintbrush.fill"
         ),
         SocializeListing(
+            category: .activities,
+            title: "Sunrise Kayaking",
+            venueName: "Damdama Lake",
+            venueArea: "Sohna, Gurugram",
+            detail: "Guided · Gear provided · 6 AM start",
+            pricePerPerson: 900,
+            rating: 4.8,
+            systemImage: "water.waves"
+        ),
+
+        // Play
+        SocializeListing(
             category: .play,
-            title: "Pickleball social",
+            title: "Pickleball Social",
             venueName: "Hudle Courts",
-            venueArea: "Gurugram",
-            detail: "Beginner-friendly doubles session",
+            venueArea: "Sector 43, Gurugram",
+            detail: "Doubles · All levels · Coach on court",
             pricePerPerson: 600,
             rating: 4.7,
             systemImage: "figure.pickleball"
         ),
         SocializeListing(
             category: .play,
-            title: "Board games evening",
+            title: "Board Game Evening",
             venueName: "The Board Room",
             venueArea: "Hauz Khas, Delhi",
-            detail: "Strategy games, snacks and new people",
+            detail: "Strategy & party games · Snacks",
             pricePerPerson: 500,
             rating: 4.5,
             systemImage: "dice.fill"
+        ),
+        SocializeListing(
+            category: .play,
+            title: "Go-Karting Grand Prix",
+            venueName: "F9 Go Karting",
+            venueArea: "Sector 29, Gurugram",
+            detail: "10-lap race · Helmet included",
+            pricePerPerson: 750,
+            rating: 4.6,
+            systemImage: "flag.checkered"
         )
     ]
 

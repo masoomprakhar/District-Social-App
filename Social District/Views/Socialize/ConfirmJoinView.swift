@@ -4,17 +4,16 @@ struct ConfirmJoinView: View {
     @EnvironmentObject private var store: SocializeStore
 
     let roomID: UUID
-    let onViewBookings: () -> Void
     let onDone: () -> Void
 
-    @State private var receipt: JoinReceipt?
+    @State private var requestSent = false
 
     var body: some View {
         Group {
-            if let receipt {
-                JoinSuccessView(
-                    receipt: receipt,
-                    onViewBookings: onViewBookings,
+            if requestSent, let room = store.room(id: roomID) {
+                GroupRequestSentView(
+                    title: room.title,
+                    hostName: room.hostName,
                     onDone: onDone
                 )
             } else if let room = store.room(id: roomID) {
@@ -25,7 +24,7 @@ struct ConfirmJoinView: View {
             }
         }
         .background(DistrictTheme.Palette.background.ignoresSafeArea())
-        .presentationDetents(receipt == nil ? [.medium, .large] : [.large])
+        .presentationDetents(requestSent ? [.large] : [.medium, .large])
         .presentationDragIndicator(.visible)
         .preferredColorScheme(.dark)
     }
@@ -38,10 +37,10 @@ struct ConfirmJoinView: View {
         return ScrollView {
             VStack(alignment: .leading, spacing: 24) {
                 VStack(alignment: .leading, spacing: 7) {
-                    Text("Confirm your spot")
+                    Text("Request to join")
                         .font(.system(size: 26, weight: .heavy))
                         .foregroundStyle(DistrictTheme.Palette.textPrimary)
-                    Text("Your price updates with the group size.")
+                    Text("\(room.hostName) will review your request.")
                         .font(.system(size: 14, weight: .medium))
                         .foregroundStyle(DistrictTheme.Palette.textSecondary)
                 }
@@ -55,7 +54,7 @@ struct ConfirmJoinView: View {
                     )
                     recapRow(
                         icon: "person.2.fill",
-                        title: "\(projectedCount) of \(room.capacity) people after you join"
+                        title: "\(room.joinedCount) of \(room.capacity) people currently going"
                     )
                 }
                 .padding(16)
@@ -69,7 +68,7 @@ struct ConfirmJoinView: View {
                         Text("\(projectedDiscount)% group discount")
                             .font(.system(size: 13, weight: .bold))
                             .foregroundStyle(DistrictTheme.Palette.accent)
-                        Text("Your final price")
+                        Text("Estimated price if accepted")
                             .font(.system(size: 12, weight: .medium))
                             .foregroundStyle(DistrictTheme.Palette.textSecondary)
                     }
@@ -85,7 +84,7 @@ struct ConfirmJoinView: View {
                 }
 
                 Label(
-                    "You’ll see who’s going. Meet at the venue.",
+                    "No charge now. Booking happens only after the host accepts.",
                     systemImage: "shield.checkered"
                 )
                 .font(.system(size: 12, weight: .medium))
@@ -93,15 +92,10 @@ struct ConfirmJoinView: View {
 
                 Button {
                     withAnimation(.easeInOut(duration: 0.25)) {
-                        receipt = store.join(roomID: room.id)
+                        requestSent = store.requestToJoin(roomID: room.id)
                     }
                 } label: {
-                    Text(
-                        "Confirm & pay "
-                            + projectedPrice.formatted(
-                                .currency(code: "INR").precision(.fractionLength(0))
-                            )
-                    )
+                    Text("Send join request")
                     .font(.system(size: 16, weight: .bold))
                     .foregroundStyle(.white)
                     .frame(maxWidth: .infinity)
@@ -136,7 +130,6 @@ struct ConfirmJoinView: View {
     let store = SocializeStore()
     ConfirmJoinView(
         roomID: store.rooms[0].id,
-        onViewBookings: {},
         onDone: {}
     )
     .environmentObject(store)

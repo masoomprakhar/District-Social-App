@@ -2,7 +2,6 @@ import SwiftUI
 
 struct RoomDetailView: View {
     @EnvironmentObject private var store: SocializeStore
-    @Environment(\.openBookings) private var openBookings
     @Binding var path: NavigationPath
     let roomID: UUID
 
@@ -36,12 +35,6 @@ struct RoomDetailView: View {
                 .sheet(isPresented: $showingConfirmation) {
                     ConfirmJoinView(
                         roomID: room.id,
-                        onViewBookings: {
-                            showingConfirmation = false
-                            DispatchQueue.main.async {
-                                openBookings()
-                            }
-                        },
                         onDone: {
                             showingConfirmation = false
                         }
@@ -215,11 +208,18 @@ struct RoomDetailView: View {
 
     private func joinButton(_ room: SocializeRoom) -> some View {
         let alreadyJoined = store.joinedRoomIDs.contains(room.id)
+        let requestPending = store.requestedRoomIDs.contains(room.id)
 
         return Button {
             showingConfirmation = true
         } label: {
-            Text(buttonTitle(room, alreadyJoined: alreadyJoined))
+            Text(
+                buttonTitle(
+                    room,
+                    alreadyJoined: alreadyJoined,
+                    requestPending: requestPending
+                )
+            )
                 .font(.system(size: 16, weight: .bold))
                 .foregroundStyle(.white)
                 .frame(maxWidth: .infinity)
@@ -232,16 +232,18 @@ struct RoomDetailView: View {
                 )
         }
         .buttonStyle(PressableButtonStyle())
-        .disabled(room.isFull || alreadyJoined)
+        .disabled(room.isFull || alreadyJoined || requestPending)
     }
 
-    private func buttonTitle(_ room: SocializeRoom, alreadyJoined: Bool) -> String {
+    private func buttonTitle(
+        _ room: SocializeRoom,
+        alreadyJoined: Bool,
+        requestPending: Bool
+    ) -> String {
         if alreadyJoined { return "Already booked" }
+        if requestPending { return "Request sent" }
         if room.isFull { return "Room full" }
-        let price = room.currentPrice.formatted(
-            .currency(code: "INR").precision(.fractionLength(0))
-        )
-        return "Join & book — \(price)"
+        return "Request to join group"
     }
 
     private func headerColors(for type: SocializeActivityType) -> [Color] {

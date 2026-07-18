@@ -46,15 +46,17 @@ struct SocializeListingCardView: View {
                 .font(.system(size: 10, weight: .medium))
                 .foregroundStyle(DistrictTheme.Palette.textSecondary)
 
-                HStack(alignment: .firstTextBaseline, spacing: 7) {
-                    if socializeModeEnabled {
-                        Text(
-                            listing.socializePrice,
-                            format: .currency(code: "INR").precision(.fractionLength(0))
-                        )
-                        .font(.system(size: 17, weight: .heavy))
-                        .foregroundStyle(DistrictTheme.Palette.textPrimary)
+                HStack(alignment: .firstTextBaseline, spacing: 6) {
+                    Text(
+                        socializeModeEnabled
+                            ? listing.socializePrice
+                            : listing.pricePerPerson,
+                        format: .currency(code: "INR").precision(.fractionLength(0))
+                    )
+                    .font(.system(size: 17, weight: .heavy))
+                    .foregroundStyle(DistrictTheme.Palette.textPrimary)
 
+                    if socializeModeEnabled {
                         Text(
                             listing.pricePerPerson,
                             format: .currency(code: "INR").precision(.fractionLength(0))
@@ -62,22 +64,20 @@ struct SocializeListingCardView: View {
                         .font(.system(size: 11, weight: .medium))
                         .foregroundStyle(DistrictTheme.Palette.textSecondary)
                         .strikethrough()
-
-                        Text("20% OFF")
-                            .font(.system(size: 9, weight: .heavy))
-                            .foregroundStyle(DistrictTheme.Palette.accent)
-                    } else {
-                        Text(
-                            listing.pricePerPerson,
-                            format: .currency(code: "INR").precision(.fractionLength(0))
-                        )
-                        .font(.system(size: 17, weight: .heavy))
-                        .foregroundStyle(DistrictTheme.Palette.textPrimary)
                     }
 
                     Text("per person")
                         .font(.system(size: 10, weight: .medium))
                         .foregroundStyle(DistrictTheme.Palette.textSecondary)
+
+                    if socializeModeEnabled {
+                        Text("UP TO 20% OFF")
+                            .font(.system(size: 8, weight: .heavy))
+                            .foregroundStyle(DistrictTheme.Palette.accent)
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 3)
+                            .background(DistrictTheme.Palette.accentSoft, in: Capsule())
+                    }
                 }
             }
 

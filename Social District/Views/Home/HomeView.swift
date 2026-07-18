@@ -39,22 +39,8 @@ struct HomeView: View {
                 )
                 .padding(.horizontal, DistrictTheme.Space.screenH)
 
-                VStack(alignment: .leading, spacing: 10) {
-                    SocializeModeToggleView(isOn: $store.socializeModeEnabled)
-
-                    if store.socializeModeEnabled {
-                        HStack(spacing: 8) {
-                            Image(systemName: "sparkles")
-                                .font(.system(size: 13, weight: .semibold))
-                                .foregroundStyle(DistrictTheme.Palette.accent)
-                            Text("Together prices are on. Open any plan below and tap Match me.")
-                                .font(.system(size: 11, weight: .medium))
-                                .foregroundStyle(DistrictTheme.Palette.textSecondary)
-                        }
-                        .padding(.horizontal, 4)
-                    }
-                }
-                .padding(.horizontal, DistrictTheme.Space.screenH)
+                SocializeModeToggleView(isOn: $store.socializeModeEnabled)
+                    .padding(.horizontal, DistrictTheme.Space.screenH)
 
                 CategoryGridView(items: HomeSampleData.categories) { item in
                     guard let category = SocializeCategory.allCases.first(

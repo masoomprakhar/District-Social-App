@@ -90,7 +90,7 @@ struct ProfileView: View {
             divider
             stat(value: store.matchSessions.count, label: "Matches")
             divider
-            stat(value: store.socializeModeEnabled ? 1 : 0, label: "Mode on")
+            stat(value: store.joinedRoomIDs.count, label: "Group rooms")
         }
         .padding(.vertical, 17)
         .background(

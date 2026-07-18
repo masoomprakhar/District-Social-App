@@ -2,13 +2,12 @@ import SwiftUI
 
 struct MovieSeatSelectionView: View {
     @EnvironmentObject private var store: SocializeStore
-    @Environment(\.openBookings) private var openBookings
     @Binding var path: NavigationPath
     let listingID: UUID
     let roomID: UUID
 
     @State private var selectedSeatCode = ""
-    @State private var receipt: JoinReceipt?
+    @State private var showingRequestSent = false
 
     private let rows = ["A", "B", "C", "D", "E", "F"]
     private let occupiedSeatCodes: Set<String> = [
@@ -45,18 +44,11 @@ struct MovieSeatSelectionView: View {
                         selectedSeatCode = recommendedSeatCode(for: room)
                     }
                 }
-                .sheet(item: $receipt) { receipt in
-                    JoinSuccessView(
-                        receipt: receipt,
-                        onViewBookings: {
-                            self.receipt = nil
-                            DispatchQueue.main.async {
-                                openBookings()
-                            }
-                        },
-                        onDone: {
-                            self.receipt = nil
-                        }
+                .sheet(isPresented: $showingRequestSent) {
+                    GroupRequestSentView(
+                        title: listing.title,
+                        hostName: room.hostName,
+                        onDone: { showingRequestSent = false }
                     )
                 }
             } else {
@@ -248,33 +240,38 @@ struct MovieSeatSelectionView: View {
 
     private func bookingButton(_ room: SocializeRoom) -> some View {
         let alreadyJoined = store.joinedRoomIDs.contains(room.id)
+        let requestPending = store.requestedRoomIDs.contains(room.id)
         let projectedCount = min(room.capacity, room.joinedCount + 1)
         let price = room.price(for: projectedCount)
 
         return Button {
-            receipt = store.join(roomID: room.id)
+            if store.requestToJoin(roomID: room.id) {
+                showingRequestSent = true
+            }
         } label: {
             Text(
                 alreadyJoined
                     ? "Seat already booked"
-                    : "Book \(selectedSeatCode) beside the group — "
-                        + price.formatted(
-                            .currency(code: "INR").precision(.fractionLength(0))
-                        )
+                    : requestPending
+                        ? "Request sent"
+                        : "Request seat \(selectedSeatCode) · Est. "
+                            + price.formatted(
+                                .currency(code: "INR").precision(.fractionLength(0))
+                            )
             )
             .font(.system(size: 15, weight: .bold))
             .foregroundStyle(.white)
             .frame(maxWidth: .infinity)
             .padding(.vertical, 16)
             .background(
-                alreadyJoined || selectedSeatCode.isEmpty
+                alreadyJoined || requestPending || selectedSeatCode.isEmpty
                     ? DistrictTheme.Palette.surfaceRaised
                     : DistrictTheme.Palette.accent,
                 in: RoundedRectangle(cornerRadius: 17, style: .continuous)
             )
         }
         .buttonStyle(PressableButtonStyle())
-        .disabled(alreadyJoined || selectedSeatCode.isEmpty)
+        .disabled(alreadyJoined || requestPending || selectedSeatCode.isEmpty)
     }
 
     private func groupSeatCodes(for room: SocializeRoom) -> Set<String> {

@@ -2,12 +2,11 @@ import SwiftUI
 
 struct GroupExperienceBookingView: View {
     @EnvironmentObject private var store: SocializeStore
-    @Environment(\.openBookings) private var openBookings
     @Binding var path: NavigationPath
     let listingID: UUID
 
     @State private var selectedOption = ""
-    @State private var receipt: JoinReceipt?
+    @State private var showingRequestSent = false
 
     var body: some View {
         Group {
@@ -39,18 +38,11 @@ struct GroupExperienceBookingView: View {
                         selectedOption = suggestion.bookingOptions.first ?? ""
                     }
                 }
-                .sheet(item: $receipt) { receipt in
-                    JoinSuccessView(
-                        receipt: receipt,
-                        onViewBookings: {
-                            self.receipt = nil
-                            DispatchQueue.main.async {
-                                openBookings()
-                            }
-                        },
-                        onDone: {
-                            self.receipt = nil
-                        }
+                .sheet(isPresented: $showingRequestSent) {
+                    GroupRequestSentView(
+                        title: listing.title,
+                        hostName: suggestion.hostName,
+                        onDone: { showingRequestSent = false }
                     )
                 }
             } else {
@@ -262,33 +254,38 @@ struct GroupExperienceBookingView: View {
         suggestion: ExperienceGroupSuggestion
     ) -> some View {
         let alreadyJoined = store.joinedExperienceIDs.contains(listing.id)
+        let requestPending = store.requestedExperienceIDs.contains(listing.id)
         let finalPrice = listing.pricePerPerson
             * (1 - Double(suggestion.discountPercent) / 100)
 
         return Button {
-            receipt = store.joinExperience(listingID: listing.id)
+            if store.requestToJoinExperience(listingID: listing.id) {
+                showingRequestSent = true
+            }
         } label: {
             Text(
                 alreadyJoined
                     ? "Already joined"
-                    : "Join group — "
-                        + finalPrice.formatted(
-                            .currency(code: "INR").precision(.fractionLength(0))
-                        )
+                    : requestPending
+                        ? "Request sent"
+                        : "Request to join · Est. "
+                            + finalPrice.formatted(
+                                .currency(code: "INR").precision(.fractionLength(0))
+                            )
             )
             .font(.system(size: 16, weight: .bold))
             .foregroundStyle(.white)
             .frame(maxWidth: .infinity)
             .padding(.vertical, 16)
             .background(
-                alreadyJoined
+                alreadyJoined || requestPending
                     ? DistrictTheme.Palette.surfaceRaised
                     : listing.category.tint,
                 in: RoundedRectangle(cornerRadius: 17)
             )
         }
         .buttonStyle(PressableButtonStyle())
-        .disabled(alreadyJoined || selectedOption.isEmpty)
+        .disabled(alreadyJoined || requestPending || selectedOption.isEmpty)
     }
 
     private func selectionSymbol(_ category: SocializeCategory) -> String {

@@ -19,15 +19,19 @@ struct SocializeModeToggleView: View {
 
             if !compact {
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("Socialize Mode")
+                    Text(isOn ? "Best offers applied" : "Socialize Mode")
                         .font(.system(size: 15, weight: .bold))
                         .foregroundStyle(DistrictTheme.Palette.textPrimary)
-                    Text(isOn ? "Match with someone & save 20%" : "Turn on to book together")
-                        .font(.system(size: 11, weight: .medium))
-                        .foregroundStyle(DistrictTheme.Palette.textSecondary)
+                    Text(
+                        isOn
+                            ? "Make new friends and enjoy going out together"
+                            : "Turn on Socialize to enjoy up to 20% off"
+                    )
+                    .font(.system(size: 11, weight: .medium))
+                    .foregroundStyle(DistrictTheme.Palette.textSecondary)
                 }
             } else {
-                Text("Socialize")
+                Text(isOn ? "Offers on" : "Socialize")
                     .font(.system(size: 13, weight: .bold))
                     .foregroundStyle(DistrictTheme.Palette.textPrimary)
             }

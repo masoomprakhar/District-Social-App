@@ -26,7 +26,7 @@ struct CreateRoomView: View {
             ScrollView(.vertical, showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 22) {
                     VStack(alignment: .leading, spacing: 7) {
-                        Text("Create a room")
+                        Text("Create a group")
                             .font(.system(size: 28, weight: .heavy))
                             .foregroundStyle(DistrictTheme.Palette.textPrimary)
                         Text("Choose the plan. We’ll grow the discount as people join.")
@@ -117,7 +117,7 @@ struct CreateRoomView: View {
                         onCreated(room)
                         dismiss()
                     } label: {
-                        Text("Create room")
+                        Text("Create group")
                             .font(.system(size: 16, weight: .bold))
                             .foregroundStyle(.white)
                             .frame(maxWidth: .infinity)

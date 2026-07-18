@@ -133,7 +133,7 @@ struct SocializeListingDetailView: View {
             Spacer()
 
             if store.socializeModeEnabled {
-                Text("20% OFF")
+                Text("UP TO 20% OFF")
                     .font(.system(size: 12, weight: .heavy))
                     .foregroundStyle(.white)
                     .padding(.horizontal, 11)
@@ -175,7 +175,7 @@ struct SocializeListingDetailView: View {
         } label: {
             Label(
                 store.socializeModeEnabled
-                    ? "Match me — save 20%"
+                    ? "Match me — save up to 20%"
                     : "Book now — "
                         + listing.pricePerPerson.formatted(
                             .currency(code: "INR").precision(.fractionLength(0))

@@ -15,6 +15,7 @@ struct SocializeHomeView: View {
     @EnvironmentObject private var store: SocializeStore
     @Environment(\.openHome) private var openHome
     @Binding var path: NavigationPath
+    @State private var showingCreateGroup = false
 
     private var sessions: [DirectMatchSession] {
         store.matchSessions.values.sorted { lhs, rhs in
@@ -24,6 +25,14 @@ struct SocializeHomeView: View {
 
     private var myRooms: [SocializeRoom] {
         store.rooms.filter { store.joinedRoomIDs.contains($0.id) }
+    }
+
+    private var pendingRooms: [SocializeRoom] {
+        store.rooms.filter { store.requestedRoomIDs.contains($0.id) }
+    }
+
+    private var pendingExperiences: [SocializeListing] {
+        store.listings.filter { store.requestedExperienceIDs.contains($0.id) }
     }
 
     var body: some View {
@@ -41,6 +50,11 @@ struct SocializeHomeView: View {
                 }
 
                 modeStatusCard
+                createGroupButton
+
+                if !pendingRooms.isEmpty || !pendingExperiences.isEmpty {
+                    pendingRequestsSection
+                }
 
                 if !sessions.isEmpty {
                     matchesSection
@@ -50,7 +64,10 @@ struct SocializeHomeView: View {
                     roomsSection
                 }
 
-                if sessions.isEmpty && myRooms.isEmpty {
+                if sessions.isEmpty
+                    && myRooms.isEmpty
+                    && pendingRooms.isEmpty
+                    && pendingExperiences.isEmpty {
                     emptyState
                 }
             }
@@ -59,9 +76,91 @@ struct SocializeHomeView: View {
             .padding(.bottom, 116)
         }
         .background(DistrictTheme.Palette.background.ignoresSafeArea())
+        .sheet(isPresented: $showingCreateGroup) {
+            CreateRoomView { room in
+                DispatchQueue.main.async {
+                    path.append(AppRoute.roomDetail(room.id))
+                }
+            }
+            .environmentObject(store)
+        }
         #if os(iOS)
         .toolbar(.hidden, for: .navigationBar)
         #endif
+    }
+
+    private var createGroupButton: some View {
+        Button {
+            showingCreateGroup = true
+        } label: {
+            Label("Create your own group", systemImage: "plus.circle.fill")
+                .font(.system(size: 15, weight: .bold))
+                .foregroundStyle(.white)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 15)
+                .background(
+                    DistrictTheme.Palette.accent,
+                    in: RoundedRectangle(cornerRadius: 17)
+                )
+        }
+        .buttonStyle(PressableButtonStyle())
+    }
+
+    private var pendingRequestsSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Pending requests")
+                .font(.system(size: 20, weight: .bold))
+                .foregroundStyle(DistrictTheme.Palette.textPrimary)
+
+            ForEach(pendingRooms) { room in
+                pendingRequestRow(
+                    title: room.title,
+                    subtitle: "\(room.hostName)’s group · Awaiting approval"
+                )
+            }
+
+            ForEach(pendingExperiences) { listing in
+                pendingRequestRow(
+                    title: listing.title,
+                    subtitle: "\(listing.venueName) · Awaiting approval"
+                )
+            }
+        }
+    }
+
+    private func pendingRequestRow(
+        title: String,
+        subtitle: String
+    ) -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: "clock.fill")
+                .font(.system(size: 15, weight: .semibold))
+                .foregroundStyle(DistrictTheme.Palette.accent)
+                .frame(width: 38, height: 38)
+                .background(DistrictTheme.Palette.accentSoft, in: Circle())
+
+            VStack(alignment: .leading, spacing: 3) {
+                Text(title)
+                    .font(.system(size: 14, weight: .bold))
+                    .foregroundStyle(DistrictTheme.Palette.textPrimary)
+                    .lineLimit(1)
+                Text(subtitle)
+                    .font(.system(size: 11, weight: .medium))
+                    .foregroundStyle(DistrictTheme.Palette.textSecondary)
+                    .lineLimit(1)
+            }
+
+            Spacer()
+
+            Text("PENDING")
+                .font(.system(size: 9, weight: .heavy))
+                .foregroundStyle(DistrictTheme.Palette.accent)
+        }
+        .padding(14)
+        .background(
+            DistrictTheme.Palette.surface,
+            in: RoundedRectangle(cornerRadius: 17)
+        )
     }
 
     private var modeStatusCard: some View {
@@ -82,7 +181,7 @@ struct SocializeHomeView: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(
                     store.socializeModeEnabled
-                        ? "Socialize Mode is on"
+                        ? "Best offers applied"
                         : "Socialize Mode is off"
                 )
                 .font(.system(size: 14, weight: .bold))
@@ -90,8 +189,8 @@ struct SocializeHomeView: View {
 
                 Text(
                     store.socializeModeEnabled
-                        ? "Plans on Home show together prices and Match me."
-                        : "Turn it on from the Home screen to unlock together pricing."
+                        ? "Make new friends and enjoy going out together."
+                        : "Turn on Socialize to enjoy up to 20% off."
                 )
                 .font(.system(size: 11, weight: .medium))
                 .foregroundStyle(DistrictTheme.Palette.textSecondary)

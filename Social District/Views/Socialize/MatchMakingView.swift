@@ -274,7 +274,7 @@ struct MatchMakingView: View {
                 )
                 .font(.system(size: 17, weight: .heavy))
                 .foregroundStyle(DistrictTheme.Palette.textPrimary)
-                Text("20% off")
+                Text("Up to 20% off")
                     .font(.system(size: 10, weight: .bold))
                     .foregroundStyle(DistrictTheme.Palette.accent)
             }
