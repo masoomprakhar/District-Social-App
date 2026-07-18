@@ -13,6 +13,10 @@ final class SocializeStore: ObservableObject {
     @Published private(set) var matchedBookingIDs: Set<UUID> = []
     @Published private(set) var requestedRoomIDs: Set<UUID> = []
     @Published private(set) var requestedExperienceIDs: Set<UUID> = []
+    @Published private(set) var declinedRoomIDs: Set<UUID> = []
+    @Published private(set) var declinedExperienceIDs: Set<UUID> = []
+    @Published private(set) var groupMessages: [GroupRequestTarget: [ChatMessage]] = [:]
+    @Published private(set) var hostJoinRequests: [HostJoinRequest] = []
 
     private let experienceSuggestions: [UUID: ExperienceGroupSuggestion]
 
@@ -25,7 +29,9 @@ final class SocializeStore: ObservableObject {
         self.rooms = rooms
         self.listings = listings
         self.experienceSuggestions = Self.makeExperienceSuggestions(listings: listings)
+        seedHostedDemo()
         seedDemoBookings()
+        seedHostRequests()
     }
 
     convenience init() {
@@ -58,6 +64,87 @@ final class SocializeStore: ObservableObject {
                 }
             }
         }
+    }
+
+    private func seedHostedDemo() {
+        guard !rooms.contains(where: { $0.hostName == currentUser.name }) else {
+            return
+        }
+
+        let hostedRoom = SocializeRoom(
+            activityType: .dining,
+            title: "Sunday brunch for newcomers",
+            venueName: "Olive Bar & Kitchen",
+            venueArea: "Mehrauli, Delhi",
+            dateTime: Self.futureDate(days: 5, hour: 11, minute: 30),
+            hostName: currentUser.name,
+            hostAvatarSystemImage: currentUser.avatarSystemImage,
+            capacity: 5,
+            joinedCount: 1,
+            members: [currentUser],
+            basePrice: 1800,
+            discountTiers: Self.discountTiers(for: 5)
+        )
+        rooms.insert(hostedRoom, at: 0)
+        joinedRoomIDs.insert(hostedRoom.id)
+    }
+
+    private func seedHostRequests() {
+        guard
+            let room = rooms.first(where: { $0.hostName == currentUser.name }),
+            hostJoinRequests.isEmpty
+        else {
+            return
+        }
+
+        hostJoinRequests = [
+            HostJoinRequest(
+                roomID: room.id,
+                member: RoomMember(name: "Naina"),
+                note: "New to Delhi and would love to meet people over brunch."
+            ),
+            HostJoinRequest(
+                roomID: room.id,
+                member: RoomMember(name: "Kabir"),
+                note: "Food explorer. I’ve saved this restaurant for months."
+            )
+        ]
+    }
+
+    var hostedRooms: [SocializeRoom] {
+        rooms.filter { $0.hostName == currentUser.name }
+    }
+
+    func approveHostRequest(_ requestID: UUID) {
+        guard
+            let requestIndex = hostJoinRequests.firstIndex(
+                where: { $0.id == requestID }
+            ),
+            hostJoinRequests[requestIndex].status == .pending,
+            let roomIndex = rooms.firstIndex(
+                where: { $0.id == hostJoinRequests[requestIndex].roomID }
+            ),
+            !rooms[roomIndex].isFull
+        else {
+            return
+        }
+
+        let member = hostJoinRequests[requestIndex].member
+        rooms[roomIndex].members.append(member)
+        rooms[roomIndex].joinedCount += 1
+        hostJoinRequests[requestIndex].status = .accepted
+    }
+
+    func declineHostRequest(_ requestID: UUID) {
+        guard
+            let index = hostJoinRequests.firstIndex(
+                where: { $0.id == requestID }
+            ),
+            hostJoinRequests[index].status == .pending
+        else {
+            return
+        }
+        hostJoinRequests[index].status = .declined
     }
 
     func listings(for category: SocializeCategory) -> [SocializeListing] {
@@ -246,6 +333,133 @@ final class SocializeStore: ObservableObject {
 
         requestedExperienceIDs.insert(listingID)
         return true
+    }
+
+    func requestStatus(for target: GroupRequestTarget) -> GroupRequestStatus? {
+        switch target {
+        case .room(let id):
+            if joinedRoomIDs.contains(id) { return .accepted }
+            if requestedRoomIDs.contains(id) { return .pending }
+            if declinedRoomIDs.contains(id) { return .declined }
+        case .experience(let id):
+            if joinedExperienceIDs.contains(id) { return .accepted }
+            if requestedExperienceIDs.contains(id) { return .pending }
+            if declinedExperienceIDs.contains(id) { return .declined }
+        }
+        return nil
+    }
+
+    @discardableResult
+    func approveRequest(for target: GroupRequestTarget) -> Bool {
+        let approved: Bool
+
+        switch target {
+        case .room(let id):
+            guard requestedRoomIDs.contains(id) else { return false }
+            approved = join(roomID: id) != nil
+            if approved {
+                requestedRoomIDs.remove(id)
+                declinedRoomIDs.remove(id)
+            }
+        case .experience(let id):
+            guard requestedExperienceIDs.contains(id) else { return false }
+            approved = joinExperience(listingID: id) != nil
+            if approved {
+                requestedExperienceIDs.remove(id)
+                declinedExperienceIDs.remove(id)
+            }
+        }
+
+        if approved {
+            seedGroupChat(for: target)
+        }
+        return approved
+    }
+
+    func declineRequest(for target: GroupRequestTarget) {
+        switch target {
+        case .room(let id):
+            guard requestedRoomIDs.remove(id) != nil else { return }
+            declinedRoomIDs.insert(id)
+        case .experience(let id):
+            guard requestedExperienceIDs.remove(id) != nil else { return }
+            declinedExperienceIDs.insert(id)
+        }
+    }
+
+    func groupContext(for target: GroupRequestTarget) -> GroupChatContext? {
+        switch target {
+        case .room(let id):
+            guard let room = room(id: id) else { return nil }
+            return GroupChatContext(
+                title: room.title,
+                venueName: room.venueName,
+                hostName: room.hostName,
+                members: room.members
+            )
+        case .experience(let id):
+            guard
+                let listing = listing(id: id),
+                let suggestion = experienceSuggestions[id]
+            else {
+                return nil
+            }
+            var members = suggestion.members
+            if !members.contains(where: { $0.name == currentUser.name }) {
+                members.append(currentUser)
+            }
+            return GroupChatContext(
+                title: listing.title,
+                venueName: listing.venueName,
+                hostName: suggestion.hostName,
+                members: members
+            )
+        }
+    }
+
+    func messages(for target: GroupRequestTarget) -> [ChatMessage] {
+        groupMessages[target] ?? []
+    }
+
+    func prepareGroupChat(for target: GroupRequestTarget) {
+        guard requestStatus(for: target) == .accepted else { return }
+        seedGroupChat(for: target)
+    }
+
+    func sendGroupMessage(_ text: String, for target: GroupRequestTarget) {
+        let cleanText = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard
+            !cleanText.isEmpty,
+            requestStatus(for: target) == .accepted
+        else {
+            return
+        }
+
+        var messages = groupMessages[target] ?? []
+        messages.append(
+            ChatMessage(sender: .currentUser, text: cleanText)
+        )
+        groupMessages[target] = messages
+    }
+
+    private func seedGroupChat(for target: GroupRequestTarget) {
+        guard
+            groupMessages[target] == nil,
+            let context = groupContext(for: target)
+        else {
+            return
+        }
+
+        groupMessages[target] = [
+            ChatMessage(
+                sender: .system,
+                text: "Your request was accepted. Keep coordination in this group and meet at the public venue."
+            ),
+            ChatMessage(
+                sender: .match,
+                text: "Welcome! I’m \(context.hostName). Excited to have you join us for \(context.title)."
+            )
+        ]
     }
 
     func join(roomID: UUID) -> JoinReceipt? {

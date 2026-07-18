@@ -90,20 +90,37 @@ struct SocializeHomeView: View {
     }
 
     private var createGroupButton: some View {
-        Button {
-            showingCreateGroup = true
-        } label: {
-            Label("Create your own group", systemImage: "plus.circle.fill")
-                .font(.system(size: 15, weight: .bold))
-                .foregroundStyle(.white)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 15)
-                .background(
-                    DistrictTheme.Palette.accent,
-                    in: RoundedRectangle(cornerRadius: 17)
-                )
+        HStack(spacing: 10) {
+            Button {
+                showingCreateGroup = true
+            } label: {
+                Label("Create group", systemImage: "plus.circle.fill")
+                    .font(.system(size: 14, weight: .bold))
+                    .foregroundStyle(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 14)
+                    .background(
+                        DistrictTheme.Palette.accent,
+                        in: RoundedRectangle(cornerRadius: 16)
+                    )
+            }
+            .buttonStyle(PressableButtonStyle())
+
+            Button {
+                path.append(AppRoute.hostDashboard)
+            } label: {
+                Label("Manage", systemImage: "person.2.badge.gearshape")
+                    .font(.system(size: 14, weight: .bold))
+                    .foregroundStyle(DistrictTheme.Palette.textPrimary)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 14)
+                    .background(
+                        DistrictTheme.Palette.surfaceRaised,
+                        in: RoundedRectangle(cornerRadius: 16)
+                    )
+            }
+            .buttonStyle(PressableButtonStyle())
         }
-        .buttonStyle(PressableButtonStyle())
     }
 
     private var pendingRequestsSection: some View {
@@ -115,14 +132,16 @@ struct SocializeHomeView: View {
             ForEach(pendingRooms) { room in
                 pendingRequestRow(
                     title: room.title,
-                    subtitle: "\(room.hostName)’s group · Awaiting approval"
+                    subtitle: "\(room.hostName)’s group · Awaiting approval",
+                    target: .room(room.id)
                 )
             }
 
             ForEach(pendingExperiences) { listing in
                 pendingRequestRow(
                     title: listing.title,
-                    subtitle: "\(listing.venueName) · Awaiting approval"
+                    subtitle: "\(listing.venueName) · Awaiting approval",
+                    target: .experience(listing.id)
                 )
             }
         }
@@ -130,37 +149,48 @@ struct SocializeHomeView: View {
 
     private func pendingRequestRow(
         title: String,
-        subtitle: String
+        subtitle: String,
+        target: GroupRequestTarget
     ) -> some View {
-        HStack(spacing: 12) {
-            Image(systemName: "clock.fill")
-                .font(.system(size: 15, weight: .semibold))
-                .foregroundStyle(DistrictTheme.Palette.accent)
-                .frame(width: 38, height: 38)
-                .background(DistrictTheme.Palette.accentSoft, in: Circle())
+        Button {
+            path.append(AppRoute.reviewGroupRequest(target))
+        } label: {
+            HStack(spacing: 12) {
+                Image(systemName: "clock.fill")
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundStyle(DistrictTheme.Palette.accent)
+                    .frame(width: 38, height: 38)
+                    .background(DistrictTheme.Palette.accentSoft, in: Circle())
 
-            VStack(alignment: .leading, spacing: 3) {
-                Text(title)
-                    .font(.system(size: 14, weight: .bold))
-                    .foregroundStyle(DistrictTheme.Palette.textPrimary)
-                    .lineLimit(1)
-                Text(subtitle)
-                    .font(.system(size: 11, weight: .medium))
-                    .foregroundStyle(DistrictTheme.Palette.textSecondary)
-                    .lineLimit(1)
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(title)
+                        .font(.system(size: 14, weight: .bold))
+                        .foregroundStyle(DistrictTheme.Palette.textPrimary)
+                        .lineLimit(1)
+                    Text(subtitle)
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundStyle(DistrictTheme.Palette.textSecondary)
+                        .lineLimit(1)
+                }
+
+                Spacer()
+
+                VStack(alignment: .trailing, spacing: 4) {
+                    Text("PENDING")
+                        .font(.system(size: 9, weight: .heavy))
+                        .foregroundStyle(DistrictTheme.Palette.accent)
+                    Text("Review demo")
+                        .font(.system(size: 9, weight: .medium))
+                        .foregroundStyle(DistrictTheme.Palette.textTertiary)
+                }
             }
-
-            Spacer()
-
-            Text("PENDING")
-                .font(.system(size: 9, weight: .heavy))
-                .foregroundStyle(DistrictTheme.Palette.accent)
+            .padding(14)
+            .background(
+                DistrictTheme.Palette.surface,
+                in: RoundedRectangle(cornerRadius: 17)
+            )
         }
-        .padding(14)
-        .background(
-            DistrictTheme.Palette.surface,
-            in: RoundedRectangle(cornerRadius: 17)
-        )
+        .buttonStyle(PressableButtonStyle())
     }
 
     private var modeStatusCard: some View {

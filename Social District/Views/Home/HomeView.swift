@@ -12,6 +12,7 @@ struct HomeView: View {
     var onOpenSearch: (SocializeCategory?) -> Void = { _ in }
     var onOpenProfile: () -> Void = {}
     var onOpenCategory: (SocializeCategory) -> Void = { _ in }
+    var onOpenListing: (UUID) -> Void = { _ in }
 
     @State private var location = "Delhi NCR"
     @State private var locationDetail = "New Delhi, India"
@@ -51,6 +52,11 @@ struct HomeView: View {
                     onOpenCategory(category)
                 }
                 .padding(.horizontal, DistrictTheme.Space.screenH)
+
+                PersonalizedRecommendationsView(
+                    listings: store.listings.sorted { $0.rating > $1.rating },
+                    onSelect: { onOpenListing($0.id) }
+                )
 
                 SpotlightSectionView(
                     title: "In the spotlight",

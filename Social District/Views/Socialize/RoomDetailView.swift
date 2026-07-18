@@ -211,7 +211,11 @@ struct RoomDetailView: View {
         let requestPending = store.requestedRoomIDs.contains(room.id)
 
         return Button {
-            showingConfirmation = true
+            if alreadyJoined {
+                path.append(AppRoute.groupChat(.room(room.id)))
+            } else {
+                showingConfirmation = true
+            }
         } label: {
             Text(
                 buttonTitle(
@@ -225,14 +229,14 @@ struct RoomDetailView: View {
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 16)
                 .background(
-                    room.isFull || alreadyJoined
+                    room.isFull && !alreadyJoined
                         ? DistrictTheme.Palette.surfaceRaised
                         : DistrictTheme.Palette.accent,
                     in: RoundedRectangle(cornerRadius: 17, style: .continuous)
                 )
         }
         .buttonStyle(PressableButtonStyle())
-        .disabled(room.isFull || alreadyJoined || requestPending)
+        .disabled((room.isFull && !alreadyJoined) || requestPending)
     }
 
     private func buttonTitle(
@@ -240,7 +244,7 @@ struct RoomDetailView: View {
         alreadyJoined: Bool,
         requestPending: Bool
     ) -> String {
-        if alreadyJoined { return "Already booked" }
+        if alreadyJoined { return "Open group chat" }
         if requestPending { return "Request sent" }
         if room.isFull { return "Room full" }
         return "Request to join group"

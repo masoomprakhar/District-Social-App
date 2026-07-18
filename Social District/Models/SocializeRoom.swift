@@ -1,5 +1,38 @@
 import Foundation
 
+enum GroupRequestTarget: Hashable {
+    case room(UUID)
+    case experience(UUID)
+}
+
+enum GroupRequestStatus: Hashable {
+    case pending
+    case accepted
+    case declined
+}
+
+struct HostJoinRequest: Identifiable, Hashable {
+    let id: UUID
+    let roomID: UUID
+    let member: RoomMember
+    let note: String
+    var status: GroupRequestStatus
+
+    init(
+        id: UUID = UUID(),
+        roomID: UUID,
+        member: RoomMember,
+        note: String,
+        status: GroupRequestStatus = .pending
+    ) {
+        self.id = id
+        self.roomID = roomID
+        self.member = member
+        self.note = note
+        self.status = status
+    }
+}
+
 enum SocializeActivityType: String, Codable, CaseIterable, Identifiable, Hashable {
     case movie
     case dining

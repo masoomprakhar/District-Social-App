@@ -14,6 +14,7 @@ struct ProfileView: View {
     @State private var showingEditProfile = false
     @State private var showingHelp = false
     @State private var showingPrivacy = false
+    @State private var showingTrustSafety = false
 
     var body: some View {
         ScrollView(.vertical, showsIndicators: false) {
@@ -33,6 +34,19 @@ struct ProfileView: View {
             EditProfileView(name: $profileName, bio: $profileBio)
                 .presentationDetents([.medium])
                 .presentationDragIndicator(.visible)
+        }
+        .sheet(isPresented: $showingTrustSafety) {
+            NavigationStack {
+                TrustSafetyView()
+                    .toolbar {
+                        ToolbarItem(placement: .confirmationAction) {
+                            Button("Done") {
+                                showingTrustSafety = false
+                            }
+                        }
+                    }
+            }
+            .preferredColorScheme(.dark)
         }
         .alert("Help & support", isPresented: $showingHelp) {
             Button("Done", role: .cancel) {}
@@ -169,6 +183,15 @@ struct ProfileView: View {
 
     private var support: some View {
         VStack(spacing: 0) {
+            profileRow(
+                title: "Trust & safety",
+                subtitle: "Verification and meetup controls",
+                symbol: "checkmark.shield.fill",
+                tint: DistrictTheme.Palette.accent
+            ) {
+                showingTrustSafety = true
+            }
+            rowDivider
             profileRow(
                 title: "Privacy",
                 subtitle: "How your local data is used",

@@ -6,6 +6,8 @@ struct MatchMakingView: View {
     let listingID: UUID
 
     @State private var revealMatch = false
+    @State private var icebreaker: IcebreakerSuggestion?
+    @State private var isGeneratingIcebreaker = false
 
     var body: some View {
         ZStack {
@@ -107,6 +109,7 @@ struct MatchMakingView: View {
                     soloTicketCard(listing, profile: session.profile)
                 }
                 compatibilityCard(session.profile)
+                appleIntelligenceCard(listing, profile: session.profile)
                 planRecap(listing)
 
                 if session.state == .accepted {
@@ -210,6 +213,105 @@ struct MatchMakingView: View {
             DistrictTheme.Palette.surface,
             in: RoundedRectangle(cornerRadius: 20, style: .continuous)
         )
+    }
+
+    private func appleIntelligenceCard(
+        _ listing: SocializeListing,
+        profile: MatchProfile
+    ) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Label("Apple Intelligence icebreaker", systemImage: "apple.intelligence")
+                    .font(.system(size: 15, weight: .bold))
+                    .foregroundStyle(DistrictTheme.Palette.textPrimary)
+
+                Spacer()
+
+                Text("ON DEVICE")
+                    .font(.system(size: 8, weight: .heavy))
+                    .foregroundStyle(DistrictTheme.Palette.accent)
+                    .padding(.horizontal, 7)
+                    .padding(.vertical, 4)
+                    .glassEffect(
+                        .regular.tint(DistrictTheme.Palette.accent.opacity(0.2)),
+                        in: Capsule()
+                    )
+            }
+
+            if let icebreaker {
+                Text("“\(icebreaker.text)”")
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundStyle(DistrictTheme.Palette.textPrimary)
+                    .fixedSize(horizontal: false, vertical: true)
+
+                Text(
+                    icebreaker.usedOnDeviceModel
+                        ? "Generated privately by Apple’s on-device Foundation Model."
+                        : "Apple Intelligence is unavailable here, so a private local fallback is shown."
+                )
+                .font(.system(size: 10, weight: .medium))
+                .foregroundStyle(DistrictTheme.Palette.textSecondary)
+            } else {
+                Text("Generate a natural first message from this plan and your shared interests.")
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundStyle(DistrictTheme.Palette.textSecondary)
+            }
+
+            Button {
+                generateIcebreaker(listing, profile: profile)
+            } label: {
+                HStack(spacing: 8) {
+                    if isGeneratingIcebreaker {
+                        ProgressView()
+                            .controlSize(.small)
+                            .tint(.white)
+                    } else {
+                        Image(systemName: "sparkles")
+                    }
+
+                    Text(icebreaker == nil ? "Generate icebreaker" : "Generate another")
+                }
+                .font(.system(size: 13, weight: .bold))
+                .foregroundStyle(.white)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 12)
+                .glassEffect(
+                    .regular.tint(DistrictTheme.Palette.accent).interactive(),
+                    in: RoundedRectangle(cornerRadius: 14)
+                )
+            }
+            .buttonStyle(.plain)
+            .disabled(isGeneratingIcebreaker)
+        }
+        .padding(16)
+        .background(
+            DistrictTheme.Palette.surface,
+            in: RoundedRectangle(cornerRadius: 20)
+        )
+        .overlay {
+            RoundedRectangle(cornerRadius: 20)
+                .stroke(DistrictTheme.Palette.accent.opacity(0.28), lineWidth: 1)
+        }
+    }
+
+    private func generateIcebreaker(
+        _ listing: SocializeListing,
+        profile: MatchProfile
+    ) {
+        isGeneratingIcebreaker = true
+
+        Task {
+            let suggestion = await AppleIntelligenceMatchService.icebreaker(
+                listing: listing,
+                profile: profile
+            )
+            guard !Task.isCancelled else { return }
+
+            withAnimation(.easeInOut(duration: 0.25)) {
+                icebreaker = suggestion
+                isGeneratingIcebreaker = false
+            }
+        }
     }
 
     private func soloTicketCard(

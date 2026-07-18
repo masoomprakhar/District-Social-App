@@ -6,7 +6,18 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		AA0000000000000000000009 /* Social District Live Activity.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000001 /* Social District Live Activity.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
+		AA000000000000000000000A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BE699A3E300BB0C8002B9122 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = AA0000000000000000000004;
+			remoteInfo = "Social District Live Activity";
+		};
 		BE699A56300BB0CB002B9122 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = BE699A3E300BB0C8002B9122 /* Project object */;
@@ -23,13 +34,38 @@
 		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		AA0000000000000000000008 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				AA0000000000000000000009 /* Social District Live Activity.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
+		AA0000000000000000000001 /* Social District Live Activity.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Social District Live Activity.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 		BE699A46300BB0C8002B9122 /* Social District.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Social District.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		BE699A55300BB0CB002B9122 /* Social DistrictTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Social DistrictTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		BE699A5F300BB0CB002B9122 /* Social DistrictUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Social DistrictUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		AA0000000000000000000002 /* Social District Shared */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "Social District Shared";
+			sourceTree = "<group>";
+		};
+		AA0000000000000000000003 /* Social District Live Activity */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "Social District Live Activity";
+			sourceTree = "<group>";
+		};
 		BE699A48300BB0C8002B9122 /* Social District */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = "Social District";
@@ -48,6 +84,13 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		AA0000000000000000000006 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		BE699A43300BB0C8002B9122 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -76,6 +119,8 @@
 			isa = PBXGroup;
 			children = (
 				BE699A48300BB0C8002B9122 /* Social District */,
+				AA0000000000000000000002 /* Social District Shared */,
+				AA0000000000000000000003 /* Social District Live Activity */,
 				BE699A58300BB0CB002B9122 /* Social DistrictTests */,
 				BE699A62300BB0CB002B9122 /* Social DistrictUITests */,
 				BE699A47300BB0C8002B9122 /* Products */,
@@ -86,6 +131,7 @@
 			isa = PBXGroup;
 			children = (
 				BE699A46300BB0C8002B9122 /* Social District.app */,
+				AA0000000000000000000001 /* Social District Live Activity.appex */,
 				BE699A55300BB0CB002B9122 /* Social DistrictTests.xctest */,
 				BE699A5F300BB0CB002B9122 /* Social DistrictUITests.xctest */,
 			);
@@ -95,6 +141,29 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		AA0000000000000000000004 /* Social District Live Activity */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AA000000000000000000000E /* Build configuration list for PBXNativeTarget "Social District Live Activity" */;
+			buildPhases = (
+				AA0000000000000000000005 /* Sources */,
+				AA0000000000000000000006 /* Frameworks */,
+				AA0000000000000000000007 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				AA0000000000000000000002 /* Social District Shared */,
+				AA0000000000000000000003 /* Social District Live Activity */,
+			);
+			name = "Social District Live Activity";
+			packageProductDependencies = (
+			);
+			productName = "Social District Live Activity";
+			productReference = AA0000000000000000000001 /* Social District Live Activity.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		BE699A45300BB0C8002B9122 /* Social District */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = BE699A69300BB0CB002B9122 /* Build configuration list for PBXNativeTarget "Social District" */;
@@ -102,12 +171,15 @@
 				BE699A42300BB0C8002B9122 /* Sources */,
 				BE699A43300BB0C8002B9122 /* Frameworks */,
 				BE699A44300BB0C8002B9122 /* Resources */,
+				AA0000000000000000000008 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				AA000000000000000000000B /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
+				AA0000000000000000000002 /* Social District Shared */,
 				BE699A48300BB0C8002B9122 /* Social District */,
 			);
 			name = "Social District";
@@ -173,6 +245,9 @@
 				LastSwiftUpdateCheck = 2660;
 				LastUpgradeCheck = 2660;
 				TargetAttributes = {
+					AA0000000000000000000004 = {
+						CreatedOnToolsVersion = 26.6;
+					};
 					BE699A45300BB0C8002B9122 = {
 						CreatedOnToolsVersion = 26.6;
 					};
@@ -201,6 +276,7 @@
 			projectRoot = "";
 			targets = (
 				BE699A45300BB0C8002B9122 /* Social District */,
+				AA0000000000000000000004 /* Social District Live Activity */,
 				BE699A54300BB0CB002B9122 /* Social DistrictTests */,
 				BE699A5E300BB0CB002B9122 /* Social DistrictUITests */,
 			);
@@ -208,6 +284,13 @@
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		AA0000000000000000000007 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		BE699A44300BB0C8002B9122 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -232,6 +315,13 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		AA0000000000000000000005 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		BE699A42300BB0C8002B9122 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -256,6 +346,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		AA000000000000000000000B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = AA0000000000000000000004 /* Social District Live Activity */;
+			targetProxy = AA000000000000000000000A /* PBXContainerItemProxy */;
+		};
 		BE699A57300BB0CB002B9122 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = BE699A45300BB0C8002B9122 /* Social District */;
@@ -269,6 +364,62 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		AA000000000000000000000C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = LiveActivityInfo.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.5;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.prakhar.Social-District.LiveActivity";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		AA000000000000000000000D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = LiveActivityInfo.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.5;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.prakhar.Social-District.LiveActivity";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 		BE699A67300BB0CB002B9122 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -394,6 +545,7 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -436,6 +588,7 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -568,6 +721,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		AA000000000000000000000E /* Build configuration list for PBXNativeTarget "Social District Live Activity" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AA000000000000000000000C /* Debug */,
+				AA000000000000000000000D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		BE699A41300BB0C8002B9122 /* Build configuration list for PBXProject "Social District" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

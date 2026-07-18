@@ -203,3 +203,10 @@ struct ExperienceGroupSuggestion: Identifiable, Codable, Hashable {
         max(0, capacity - joinedCount)
     }
 }
+
+struct GroupChatContext {
+    let title: String
+    let venueName: String
+    let hostName: String
+    let members: [RoomMember]
+}

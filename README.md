@@ -110,10 +110,34 @@ The MVP communicates safety intent through verified hosts and public venue indic
 - **Swift + SwiftUI**
 - **Native iPhone application**
 - **MVVM-style architecture**
-- **iOS 17+ compatible UI approach**
+- **Built with the iOS 26 SDK**
 - **No external dependencies**
 - **No backend or persistence**
 - **Local mock data only**
+
+### Modern Apple APIs used
+
+- **Liquid Glass** — SwiftUI `glassEffect`, tinted interactive glass, and
+  glass-backed status controls are used on the Socialize Mode experience.
+- **Foundation Models** — the native `FoundationModels` framework generates a
+  private on-device icebreaker for compatible matches. No prompt or response is
+  sent to an app server.
+- **ActivityKit + WidgetKit** — a real Live Activity extension displays the
+  upcoming group, venue, countdown, and group size on the Lock Screen and
+  Dynamic Island.
+- **MapKit** — the discovery map plots local plans and marks group-ready venues
+  across Delhi NCR.
+- **Availability-aware fallback** — when Apple Intelligence is unavailable
+  (including unsupported simulator/device configurations), the app supplies a
+  deterministic local suggestion and labels the fallback in the UI.
+
+To verify these features during judging:
+
+1. Find the **“Liquid Glass · On-device AI”** badge on Home.
+2. Enable Socialize Mode and open any plan.
+3. Start **Match me**, then tap **Generate icebreaker** in the Apple
+   Intelligence card.
+4. Open **Bookings** and start the upcoming-plan **Live Activity**.
 
 ```text
 Social District/

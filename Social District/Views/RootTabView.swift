@@ -26,6 +26,9 @@ struct RootTabView: View {
                         onOpenProfile: { selection = .profile },
                         onOpenCategory: { category in
                             homePath.append(AppRoute.socializeCategory(category))
+                        },
+                        onOpenListing: { id in
+                            homePath.append(AppRoute.socializeListing(id))
                         }
                     )
                     #if os(iOS)
@@ -43,6 +46,9 @@ struct RootTabView: View {
                         selectedCategory: $searchCategory,
                         onOpenListing: { id in
                             searchPath.append(AppRoute.socializeListing(id))
+                        },
+                        onOpenMap: {
+                            searchPath.append(AppRoute.venueMap)
                         }
                     )
                     .navigationDestination(for: AppRoute.self) { route in
@@ -150,10 +156,30 @@ struct RootTabView: View {
             )
         case .groupExperience(let listingID):
             GroupExperienceBookingView(path: path, listingID: listingID)
+        case .reviewGroupRequest(let target):
+            GroupRequestReviewView(path: path, target: target)
+        case .groupChat(let target):
+            GroupChatView(target: target)
+        case .venueMap:
+            VenueMapView { id in
+                path.wrappedValue.append(AppRoute.socializeListing(id))
+            }
+        case .hostDashboard:
+            HostDashboardView(path: path)
         }
     }
 
     private func openExperience(_ id: UUID, path: Binding<NavigationPath>) {
+        if
+            socializeStore.joinedExperienceIDs.contains(id),
+            !socializeStore.matchedBookingIDs.contains(id)
+        {
+            path.wrappedValue.append(
+                AppRoute.groupChat(.experience(id))
+            )
+            return
+        }
+
         path.wrappedValue.append(
             socializeStore.matchedBookingIDs.contains(id)
                 || socializeStore.standardBookingIDs.contains(id)

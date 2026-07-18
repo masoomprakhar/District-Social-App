@@ -11,4 +11,8 @@ enum AppRoute: Hashable {
     case matchChat(UUID)
     case movieSeats(listingID: UUID, roomID: UUID)
     case groupExperience(UUID)
+    case reviewGroupRequest(GroupRequestTarget)
+    case groupChat(GroupRequestTarget)
+    case venueMap
+    case hostDashboard
 }

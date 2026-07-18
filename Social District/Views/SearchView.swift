@@ -4,6 +4,7 @@ struct SearchView: View {
     @EnvironmentObject private var store: SocializeStore
     @Binding var selectedCategory: SocializeCategory?
     var onOpenListing: (UUID) -> Void
+    var onOpenMap: () -> Void = {}
 
     @State private var query = ""
 
@@ -44,9 +45,28 @@ struct SearchView: View {
     var body: some View {
         ScrollView(.vertical, showsIndicators: false) {
             VStack(alignment: .leading, spacing: 20) {
-                Text("Search")
-                    .font(.system(size: 30, weight: .heavy))
-                    .foregroundStyle(DistrictTheme.Palette.textPrimary)
+                HStack {
+                    Text("Search")
+                        .font(.system(size: 30, weight: .heavy))
+                        .foregroundStyle(DistrictTheme.Palette.textPrimary)
+
+                    Spacer()
+
+                    Button(action: onOpenMap) {
+                        Label("Map", systemImage: "map.fill")
+                            .font(.system(size: 12, weight: .bold))
+                            .foregroundStyle(DistrictTheme.Palette.textPrimary)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 9)
+                            .glassEffect(
+                                .regular.tint(
+                                    DistrictTheme.Palette.accent.opacity(0.18)
+                                ).interactive(),
+                                in: Capsule()
+                            )
+                    }
+                    .buttonStyle(.plain)
+                }
 
                 HStack(spacing: 11) {
                     Image(systemName: "magnifyingglass")
