@@ -58,19 +58,12 @@ struct SocializeHomeView: View {
                         )
                     }
 
-                    VStack(alignment: .leading, spacing: 14) {
-                        Text("What do you want to do?")
-                            .font(.system(size: 20, weight: .bold))
-                            .foregroundStyle(DistrictTheme.Palette.textPrimary)
-
-                        CategoryGridView(items: HomeSampleData.categories) { item in
-                            guard let category = SocializeCategory.allCases.first(
-                                where: { $0.title == item.title }
-                            ) else {
-                                return
-                            }
-                            path.append(AppRoute.socializeCategory(category))
-                        }
+                    // Category browsing now lives on Home (its grid opens the
+                    // Socialize flow directly), so it isn't repeated here.
+                    // When the mode is off, show a short hint instead of an
+                    // empty screen — no offers appear until the toggle is on.
+                    if !store.socializeModeEnabled {
+                        offModeHint
                     }
 
                     // Discounted group rooms only appear when Socialize Mode is on.
@@ -133,6 +126,33 @@ struct SocializeHomeView: View {
         #if os(iOS)
         .toolbar(.hidden, for: .navigationBar)
         #endif
+    }
+
+    private var offModeHint: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Image(systemName: "person.2")
+                .font(.system(size: 22, weight: .semibold))
+                .foregroundStyle(DistrictTheme.Palette.accent)
+
+            Text("Socialize Mode is off")
+                .font(.system(size: 16, weight: .bold))
+                .foregroundStyle(DistrictTheme.Palette.textPrimary)
+
+            Text("Turn it on to match with someone, join group rooms and unlock together pricing. Pick a category from Home to start a plan.")
+                .font(.system(size: 12, weight: .medium))
+                .foregroundStyle(DistrictTheme.Palette.textSecondary)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(16)
+        .background(
+            DistrictTheme.Palette.surface,
+            in: RoundedRectangle(cornerRadius: 18, style: .continuous)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .stroke(DistrictTheme.Palette.border, lineWidth: 1)
+        )
     }
 
     private var filterPicker: some View {
