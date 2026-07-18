@@ -2,9 +2,12 @@ import SwiftUI
 
 struct MatchChatView: View {
     @EnvironmentObject private var store: SocializeStore
+    @Environment(\.openBookings) private var openBookings
+    @Binding var path: NavigationPath
     let listingID: UUID
 
     @State private var messageText = ""
+    @State private var receipt: JoinReceipt?
 
     private var session: DirectMatchSession? {
         store.session(for: listingID)
@@ -25,6 +28,7 @@ struct MatchChatView: View {
                     matchHeader(session.profile, listing: listing)
                     messages(session.messages, profile: session.profile)
                     suggestions
+                    bookingAction(listing)
                     composer
                         .padding(.bottom, 70)
                 }
@@ -42,6 +46,20 @@ struct MatchChatView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbarBackground(DistrictTheme.Palette.background, for: .navigationBar)
         #endif
+        .sheet(item: $receipt) { receipt in
+            JoinSuccessView(
+                receipt: receipt,
+                onViewBookings: {
+                    self.receipt = nil
+                    DispatchQueue.main.async {
+                        openBookings()
+                    }
+                },
+                onDone: {
+                    self.receipt = nil
+                }
+            )
+        }
     }
 
     private func matchHeader(
@@ -170,6 +188,50 @@ struct MatchChatView: View {
         .padding(.vertical, 9)
     }
 
+    private func bookingAction(_ listing: SocializeListing) -> some View {
+        let isBooked = store.joinedExperienceIDs.contains(listing.id)
+
+        return Button {
+            receipt = store.bookMatchedListing(listingID: listing.id)
+        } label: {
+            HStack {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(isBooked ? "Together booking confirmed" : "Book together")
+                        .font(.system(size: 13, weight: .bold))
+                    Text(
+                        isBooked
+                            ? "Your booking is in My Bookings"
+                            : "2 tickets · "
+                                + listing.socializePrice.formatted(
+                                    .currency(code: "INR").precision(.fractionLength(0))
+                                )
+                                + " each · 20% off"
+                    )
+                    .font(.system(size: 10, weight: .medium))
+                    .opacity(0.75)
+                }
+
+                Spacer()
+
+                Image(systemName: isBooked ? "checkmark.circle.fill" : "ticket.fill")
+                    .font(.system(size: 19, weight: .semibold))
+            }
+            .foregroundStyle(.white)
+            .padding(.horizontal, 15)
+            .padding(.vertical, 12)
+            .background(
+                isBooked
+                    ? DistrictTheme.Palette.surfaceRaised
+                    : DistrictTheme.Palette.accent,
+                in: RoundedRectangle(cornerRadius: 16)
+            )
+        }
+        .buttonStyle(PressableButtonStyle())
+        .disabled(isBooked)
+        .padding(.horizontal, 14)
+        .padding(.bottom, 2)
+    }
+
     private func suggestion(_ text: String) -> some View {
         Button {
             store.sendMessage(text, for: listingID)
@@ -224,11 +286,12 @@ struct MatchChatView: View {
 }
 
 #Preview {
+    @Previewable @State var path = NavigationPath()
     let store = SocializeStore()
     let listing = store.listings[0]
     store.beginMatch(for: listing.id)
     store.sendMatchRequest(for: listing.id)
     store.acceptMatchRequest(for: listing.id)
-    return MatchChatView(listingID: listing.id)
+    return MatchChatView(path: $path, listingID: listing.id)
         .environmentObject(store)
 }

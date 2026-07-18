@@ -7,12 +7,13 @@ import SwiftUI
 struct LocationHeaderView: View {
     let primary: String
     let secondary: String
+    var onLocation: () -> Void = {}
     var onBookmark: () -> Void = {}
     var onProfile: () -> Void = {}
 
     var body: some View {
         HStack(alignment: .center, spacing: 12) {
-            Button(action: {}) {
+            Button(action: onLocation) {
                 HStack(spacing: 8) {
                     Image(systemName: "mappin.and.ellipse")
                         .font(.system(size: 18, weight: .semibold))

@@ -2,6 +2,7 @@ import SwiftUI
 
 struct MyRoomsView: View {
     @EnvironmentObject private var store: SocializeStore
+    @Environment(\.openSocialize) private var openSocialize
     var onOpenRoom: (UUID) -> Void = { _ in }
     var onOpenExperience: (UUID) -> Void = { _ in }
 
@@ -16,14 +17,38 @@ struct MyRoomsView: View {
                     Text("My bookings")
                         .font(.system(size: 30, weight: .heavy))
                         .foregroundStyle(DistrictTheme.Palette.textPrimary)
-                    Text("Your upcoming Socialize plans")
+                    Text("Tickets, reservations, and upcoming plans")
                         .font(.system(size: 14, weight: .medium))
                         .foregroundStyle(DistrictTheme.Palette.textSecondary)
                 }
 
-                if myRooms.isEmpty && store.joinedExperienceListings.isEmpty {
+                if myRooms.isEmpty
+                    && store.joinedExperienceListings.isEmpty
+                    && store.standardBookingListings.isEmpty {
                     emptyState
                 } else {
+                    if !store.standardBookingListings.isEmpty {
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text("Regular bookings")
+                                .font(.system(size: 18, weight: .bold))
+                                .foregroundStyle(DistrictTheme.Palette.textPrimary)
+
+                            LazyVStack(spacing: 12) {
+                                ForEach(store.standardBookingListings) { listing in
+                                    Button {
+                                        onOpenExperience(listing.id)
+                                    } label: {
+                                        SocializeListingCardView(
+                                            listing: listing,
+                                            socializeModeEnabled: false
+                                        )
+                                    }
+                                    .buttonStyle(PressableButtonStyle())
+                                }
+                            }
+                        }
+                    }
+
                     if !store.joinedExperienceListings.isEmpty {
                         VStack(alignment: .leading, spacing: 12) {
                             Text("Together bookings")
@@ -81,13 +106,23 @@ struct MyRoomsView: View {
             Image(systemName: "ticket")
                 .font(.system(size: 38, weight: .semibold))
                 .foregroundStyle(DistrictTheme.Palette.accent)
-            Text("No Socialize bookings yet")
+            Text("No bookings yet")
                 .font(.system(size: 18, weight: .bold))
                 .foregroundStyle(DistrictTheme.Palette.textPrimary)
-            Text("Join a movie or dining room and it will appear here.")
+            Text("Book a plan or join a group and it will appear here.")
                 .font(.system(size: 13, weight: .medium))
                 .foregroundStyle(DistrictTheme.Palette.textSecondary)
                 .multilineTextAlignment(.center)
+
+            Button("Discover Socialize") {
+                openSocialize()
+            }
+            .font(.system(size: 14, weight: .bold))
+            .foregroundStyle(.white)
+            .padding(.horizontal, 18)
+            .padding(.vertical, 12)
+            .background(DistrictTheme.Palette.accent, in: Capsule())
+            .padding(.top, 4)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 70)

@@ -5,6 +5,9 @@ import SwiftUI
 /// BottomNavigationView renders the visible bar.
 struct RootTabView: View {
     @State private var selection: AppTab = .home
+    @State private var homePath = NavigationPath()
+    @State private var searchPath = NavigationPath()
+    @State private var searchCategory: SocializeCategory?
     @State private var socializePath = NavigationPath()
     @State private var bookingsPath = NavigationPath()
     @StateObject private var socializeStore = SocializeStore()
@@ -12,73 +15,47 @@ struct RootTabView: View {
     var body: some View {
         ZStack(alignment: .bottom) {
             TabView(selection: $selection) {
-                // HOME
-                NavigationStack {
-                    HomeView(onOpenSocialize: { selection = .socialize })
-                        #if os(iOS)
-                        .toolbar(.hidden, for: .navigationBar)
-                        #endif
+                // HOME — browse plans; Socialize Mode toggle lives here.
+                NavigationStack(path: $homePath) {
+                    HomeView(
+                        onOpenSocialize: { selection = .socialize },
+                        onOpenSearch: { category in
+                            searchCategory = category
+                            selection = .search
+                        },
+                        onOpenProfile: { selection = .profile },
+                        onOpenCategory: { category in
+                            homePath.append(AppRoute.socializeCategory(category))
+                        }
+                    )
+                    #if os(iOS)
+                    .toolbar(.hidden, for: .navigationBar)
+                    #endif
+                    .navigationDestination(for: AppRoute.self) { route in
+                        destination(for: route, path: $homePath)
+                    }
                 }
                 .tag(AppTab.home)
 
                 // SEARCH
-                NavigationStack { PlaceholderScreen(title: "Search") }
-                    .tag(AppTab.search)
+                NavigationStack(path: $searchPath) {
+                    SearchView(
+                        selectedCategory: $searchCategory,
+                        onOpenListing: { id in
+                            searchPath.append(AppRoute.socializeListing(id))
+                        }
+                    )
+                    .navigationDestination(for: AppRoute.self) { route in
+                        destination(for: route, path: $searchPath)
+                    }
+                }
+                .tag(AppTab.search)
 
-                // SOCIALIZE — existing flow (discovery → plan detail)
+                // SOCIALIZE — hub for matches and group rooms.
                 NavigationStack(path: $socializePath) {
                     SocializeHomeView(path: $socializePath)
                         .navigationDestination(for: AppRoute.self) { route in
-                            switch route {
-                            case .socialize:
-                                SocializeHomeView(path: $socializePath)
-                            case .planDetail(let id):
-                                if let plan = MockDataService.shared.plan(withId: id) {
-                                    PlanDetailView(plan: plan)
-                                } else {
-                                    Text("Plan not found")
-                                        .foregroundStyle(AppTheme.secondaryText)
-                                }
-                            case .roomDetail(let id):
-                                RoomDetailView(path: $socializePath, roomID: id)
-                            case .myRooms:
-                                MyRoomsView(
-                                    onOpenRoom: { id in
-                                        socializePath.append(AppRoute.roomDetail(id))
-                                    },
-                                    onOpenExperience: { id in
-                                        socializePath.append(AppRoute.groupExperience(id))
-                                    }
-                                )
-                            case .socializeCategory(let category):
-                                SocializeCategoryView(
-                                    path: $socializePath,
-                                    category: category
-                                )
-                            case .socializeListing(let id):
-                                SocializeListingDetailView(
-                                    path: $socializePath,
-                                    listingID: id
-                                )
-                            case .matchListing(let id):
-                                MatchMakingView(
-                                    path: $socializePath,
-                                    listingID: id
-                                )
-                            case .matchChat(let id):
-                                MatchChatView(listingID: id)
-                            case .movieSeats(let listingID, let roomID):
-                                MovieSeatSelectionView(
-                                    path: $socializePath,
-                                    listingID: listingID,
-                                    roomID: roomID
-                                )
-                            case .groupExperience(let listingID):
-                                GroupExperienceBookingView(
-                                    path: $socializePath,
-                                    listingID: listingID
-                                )
-                            }
+                            destination(for: route, path: $socializePath)
                         }
                 }
                 .tag(AppTab.socialize)
@@ -90,64 +67,23 @@ struct RootTabView: View {
                             bookingsPath.append(AppRoute.roomDetail(id))
                         },
                         onOpenExperience: { id in
-                            bookingsPath.append(AppRoute.groupExperience(id))
+                            openExperience(id, path: $bookingsPath)
                         }
                     )
                     .navigationDestination(for: AppRoute.self) { route in
-                        switch route {
-                        case .roomDetail(let id):
-                            RoomDetailView(path: $bookingsPath, roomID: id)
-                        case .myRooms:
-                            MyRoomsView(
-                                onOpenRoom: { id in
-                                    bookingsPath.append(AppRoute.roomDetail(id))
-                                },
-                                onOpenExperience: { id in
-                                    bookingsPath.append(AppRoute.groupExperience(id))
-                                }
-                            )
-                        case .socialize:
-                            SocializeHomeView(path: $bookingsPath)
-                        case .planDetail(let id):
-                            if let plan = MockDataService.shared.plan(withId: id) {
-                                PlanDetailView(plan: plan)
-                            }
-                        case .socializeCategory(let category):
-                            SocializeCategoryView(
-                                path: $bookingsPath,
-                                category: category
-                            )
-                        case .socializeListing(let id):
-                            SocializeListingDetailView(
-                                path: $bookingsPath,
-                                listingID: id
-                            )
-                        case .matchListing(let id):
-                            MatchMakingView(
-                                path: $bookingsPath,
-                                listingID: id
-                            )
-                        case .matchChat(let id):
-                            MatchChatView(listingID: id)
-                        case .movieSeats(let listingID, let roomID):
-                            MovieSeatSelectionView(
-                                path: $bookingsPath,
-                                listingID: listingID,
-                                roomID: roomID
-                            )
-                        case .groupExperience(let listingID):
-                            GroupExperienceBookingView(
-                                path: $bookingsPath,
-                                listingID: listingID
-                            )
-                        }
+                        destination(for: route, path: $bookingsPath)
                     }
                 }
-                    .tag(AppTab.bookings)
+                .tag(AppTab.bookings)
 
                 // PROFILE
-                NavigationStack { PlaceholderScreen(title: "Profile") }
-                    .tag(AppTab.profile)
+                NavigationStack {
+                    ProfileView(
+                        onOpenBookings: { selection = .bookings },
+                        onOpenSocialize: { selection = .socialize }
+                    )
+                }
+                .tag(AppTab.profile)
             }
             #if os(iOS)
             .toolbar(.hidden, for: .tabBar)
@@ -156,24 +92,74 @@ struct RootTabView: View {
             BottomNavigationView(selection: $selection)
         }
         .environmentObject(socializeStore)
-    }
-}
-
-// MARK: - Placeholders for tabs that don't have real screens yet
-
-private struct PlaceholderScreen: View {
-    let title: String
-
-    var body: some View {
-        ZStack {
-            DistrictTheme.Palette.background.ignoresSafeArea()
-            Text(title)
-                .font(.system(size: 22, weight: .bold))
-                .foregroundStyle(DistrictTheme.Palette.textPrimary)
+        .environment(\.openBookings) {
+            homePath = NavigationPath()
+            socializePath = NavigationPath()
+            bookingsPath = NavigationPath()
+            selection = .bookings
         }
-        #if os(iOS)
-        .toolbar(.hidden, for: .navigationBar)
-        #endif
+        .environment(\.openSocialize) {
+            selection = .socialize
+        }
+        .environment(\.openHome) {
+            homePath = NavigationPath()
+            selection = .home
+        }
+    }
+
+    /// Shared route table used by every tab's NavigationStack.
+    @ViewBuilder
+    private func destination(
+        for route: AppRoute,
+        path: Binding<NavigationPath>
+    ) -> some View {
+        switch route {
+        case .socialize:
+            SocializeHomeView(path: path)
+        case .planDetail(let id):
+            if let plan = MockDataService.shared.plan(withId: id) {
+                PlanDetailView(plan: plan)
+            } else {
+                Text("Plan not found")
+                    .foregroundStyle(AppTheme.secondaryText)
+            }
+        case .roomDetail(let id):
+            RoomDetailView(path: path, roomID: id)
+        case .myRooms:
+            MyRoomsView(
+                onOpenRoom: { id in
+                    path.wrappedValue.append(AppRoute.roomDetail(id))
+                },
+                onOpenExperience: { id in
+                    openExperience(id, path: path)
+                }
+            )
+        case .socializeCategory(let category):
+            SocializeCategoryView(path: path, category: category)
+        case .socializeListing(let id):
+            SocializeListingDetailView(path: path, listingID: id)
+        case .matchListing(let id):
+            MatchMakingView(path: path, listingID: id)
+        case .matchChat(let id):
+            MatchChatView(path: path, listingID: id)
+        case .movieSeats(let listingID, let roomID):
+            MovieSeatSelectionView(
+                path: path,
+                listingID: listingID,
+                roomID: roomID
+            )
+        case .groupExperience(let listingID):
+            GroupExperienceBookingView(path: path, listingID: listingID)
+        }
+    }
+
+    private func openExperience(_ id: UUID, path: Binding<NavigationPath>) {
+        path.wrappedValue.append(
+            socializeStore.matchedBookingIDs.contains(id)
+                || socializeStore.standardBookingIDs.contains(id)
+                ? AppRoute.socializeListing(id)
+                : AppRoute.groupExperience(id)
+        )
     }
 }
 

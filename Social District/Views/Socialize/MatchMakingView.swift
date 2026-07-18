@@ -60,7 +60,11 @@ struct MatchMakingView: View {
             }
 
             VStack(spacing: 8) {
-                Text("Finding your person…")
+                Text(
+                    listing.category == .movies
+                        ? "Finding a solo moviegoer…"
+                        : "Finding your person…"
+                )
                     .font(.system(size: 25, weight: .heavy))
                     .foregroundStyle(DistrictTheme.Palette.textPrimary)
                 Text("Matching interests, order history and availability for \(listing.title).")
@@ -79,7 +83,13 @@ struct MatchMakingView: View {
         ScrollView(.vertical, showsIndicators: false) {
             VStack(spacing: 20) {
                 VStack(spacing: 6) {
-                    Text(session.state == .accepted ? "You matched!" : "We found someone")
+                    Text(
+                        session.state == .accepted
+                            ? "You matched!"
+                            : listing.category == .movies
+                                ? "Solo moviegoer found"
+                                : "We found someone"
+                    )
                         .font(.system(size: 28, weight: .heavy))
                         .foregroundStyle(DistrictTheme.Palette.textPrimary)
                     Text(
@@ -93,6 +103,9 @@ struct MatchMakingView: View {
                 }
 
                 profileCard(session.profile)
+                if listing.category == .movies {
+                    soloTicketCard(listing, profile: session.profile)
+                }
                 compatibilityCard(session.profile)
                 planRecap(listing)
 
@@ -196,6 +209,42 @@ struct MatchMakingView: View {
         .background(
             DistrictTheme.Palette.surface,
             in: RoundedRectangle(cornerRadius: 20, style: .continuous)
+        )
+    }
+
+    private func soloTicketCard(
+        _ listing: SocializeListing,
+        profile: MatchProfile
+    ) -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: "ticket.fill")
+                .font(.system(size: 18, weight: .semibold))
+                .foregroundStyle(DistrictTheme.CategoryTint.movies)
+                .frame(width: 42, height: 42)
+                .background(
+                    DistrictTheme.CategoryTint.movies.opacity(0.16),
+                    in: RoundedRectangle(cornerRadius: 13)
+                )
+
+            VStack(alignment: .leading, spacing: 3) {
+                Text("\(profile.name) booked one ticket")
+                    .font(.system(size: 14, weight: .bold))
+                    .foregroundStyle(DistrictTheme.Palette.textPrimary)
+                Text(
+                    "For \(listing.title). If they accept, you can discuss the showtime "
+                        + "and replace it with a discounted together booking."
+                )
+                .font(.system(size: 11, weight: .medium))
+                .foregroundStyle(DistrictTheme.Palette.textSecondary)
+                .fixedSize(horizontal: false, vertical: true)
+            }
+
+            Spacer(minLength: 0)
+        }
+        .padding(14)
+        .background(
+            DistrictTheme.Palette.surface,
+            in: RoundedRectangle(cornerRadius: 18)
         )
     }
 

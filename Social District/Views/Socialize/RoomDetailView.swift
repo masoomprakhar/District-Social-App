@@ -2,6 +2,7 @@ import SwiftUI
 
 struct RoomDetailView: View {
     @EnvironmentObject private var store: SocializeStore
+    @Environment(\.openBookings) private var openBookings
     @Binding var path: NavigationPath
     let roomID: UUID
 
@@ -38,7 +39,7 @@ struct RoomDetailView: View {
                         onViewBookings: {
                             showingConfirmation = false
                             DispatchQueue.main.async {
-                                path.append(AppRoute.myRooms)
+                                openBookings()
                             }
                         },
                         onDone: {

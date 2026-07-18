@@ -33,11 +33,7 @@ struct SocializeCategoryView: View {
                     ForEach(listings) { listing in
                         VStack(spacing: 7) {
                             Button {
-                                if store.socializeModeEnabled {
-                                    path.append(AppRoute.matchListing(listing.id))
-                                } else {
-                                    path.append(AppRoute.socializeListing(listing.id))
-                                }
+                                path.append(AppRoute.socializeListing(listing.id))
                             } label: {
                                 SocializeListingCardView(
                                     listing: listing,
@@ -46,7 +42,7 @@ struct SocializeCategoryView: View {
                             }
                             .buttonStyle(PressableButtonStyle())
 
-                            // Group suggestions and offers only appear in Socialize Mode.
+                            // Group suggestions only appear when Socialize Mode is on.
                             if store.socializeModeEnabled {
                                 if let suggestedRoom = store.suggestedRoom(for: listing) {
                                     if category == .dining {

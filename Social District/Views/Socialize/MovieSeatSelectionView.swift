@@ -2,6 +2,7 @@ import SwiftUI
 
 struct MovieSeatSelectionView: View {
     @EnvironmentObject private var store: SocializeStore
+    @Environment(\.openBookings) private var openBookings
     @Binding var path: NavigationPath
     let listingID: UUID
     let roomID: UUID
@@ -50,7 +51,7 @@ struct MovieSeatSelectionView: View {
                         onViewBookings: {
                             self.receipt = nil
                             DispatchQueue.main.async {
-                                path.append(AppRoute.myRooms)
+                                openBookings()
                             }
                         },
                         onDone: {

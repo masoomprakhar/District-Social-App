@@ -150,12 +150,13 @@ struct SocializeListingDetailView: View {
 
     private var whySocialize: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("Going together, without the awkward part")
+            Label("Match me", systemImage: "person.2.fill")
                 .font(.system(size: 17, weight: .bold))
-                .foregroundStyle(DistrictTheme.Palette.textPrimary)
+                .foregroundStyle(DistrictTheme.Palette.accent)
             Text(
-                "We find someone compatible using mocked interests, District activity and "
-                    + "Zomato/Blinkit preference signals. You only chat after both people agree."
+                "We’ll find one compatible person who is also interested in this plan. "
+                    + "For movies, we prioritize people who booked a single ticket. "
+                    + "A private chat opens only after they accept your request."
             )
             .font(.system(size: 13, weight: .medium))
             .foregroundStyle(DistrictTheme.Palette.textSecondary)
@@ -174,7 +175,7 @@ struct SocializeListingDetailView: View {
         } label: {
             Label(
                 store.socializeModeEnabled
-                    ? "Find someone & save 20%"
+                    ? "Match me — save 20%"
                     : "Book now — "
                         + listing.pricePerPerson.formatted(
                             .currency(code: "INR").precision(.fractionLength(0))

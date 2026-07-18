@@ -10,6 +10,7 @@ final class SocializeStore: ObservableObject {
     @Published private(set) var matchSessions: [UUID: DirectMatchSession] = [:]
     @Published private(set) var standardBookingIDs: Set<UUID> = []
     @Published private(set) var joinedExperienceIDs: Set<UUID> = []
+    @Published private(set) var matchedBookingIDs: Set<UUID> = []
 
     private let experienceSuggestions: [UUID: ExperienceGroupSuggestion]
 
@@ -22,10 +23,39 @@ final class SocializeStore: ObservableObject {
         self.rooms = rooms
         self.listings = listings
         self.experienceSuggestions = Self.makeExperienceSuggestions(listings: listings)
+        seedDemoBookings()
     }
 
     convenience init() {
         self.init(rooms: Self.mockRooms, listings: Self.mockListings)
+    }
+
+    /// Unique upcoming bookings across rooms, together experiences, and regular tickets.
+    var totalBookingCount: Int {
+        joinedRoomIDs.count
+            + joinedExperienceIDs.count
+            + standardBookingIDs.count
+    }
+
+    private func seedDemoBookings() {
+        if let dining = listings.first(where: { $0.category == .dining }) {
+            standardBookingIDs.insert(dining.id)
+        }
+        if let movie = listings.first(where: { $0.category == .movies }) {
+            joinedExperienceIDs.insert(movie.id)
+            matchedBookingIDs.insert(movie.id)
+        }
+        if let room = rooms.first(where: { !$0.isFull }) {
+            joinedRoomIDs.insert(room.id)
+            if !room.members.contains(where: { $0.name == currentUser.name }) {
+                var updated = room
+                updated.joinedCount = min(room.capacity, room.joinedCount + 1)
+                updated.members.append(currentUser)
+                if let index = rooms.firstIndex(where: { $0.id == room.id }) {
+                    rooms[index] = updated
+                }
+            }
+        }
     }
 
     func listings(for category: SocializeCategory) -> [SocializeListing] {
@@ -64,6 +94,10 @@ final class SocializeStore: ObservableObject {
         listings.filter { joinedExperienceIDs.contains($0.id) }
     }
 
+    var standardBookingListings: [SocializeListing] {
+        listings.filter { standardBookingIDs.contains($0.id) }
+    }
+
     func joinExperience(listingID: UUID) -> JoinReceipt? {
         guard
             let listing = listing(id: listingID),
@@ -86,6 +120,29 @@ final class SocializeStore: ObservableObject {
             finalPrice: finalPrice,
             discountPercent: suggestion.discountPercent,
             amountSaved: listing.pricePerPerson - finalPrice
+        )
+    }
+
+    func bookMatchedListing(listingID: UUID) -> JoinReceipt? {
+        guard
+            let listing = listing(id: listingID),
+            let session = matchSessions[listingID],
+            session.state == .accepted,
+            !joinedExperienceIDs.contains(listingID)
+        else {
+            return nil
+        }
+
+        joinedExperienceIDs.insert(listingID)
+        matchedBookingIDs.insert(listingID)
+        return JoinReceipt(
+            roomID: listingID,
+            title: listing.title,
+            venueName: listing.venueName,
+            groupSize: 2,
+            finalPrice: listing.socializePrice,
+            discountPercent: 20,
+            amountSaved: listing.socializeSavings
         )
     }
 
@@ -487,6 +544,45 @@ private extension SocializeStore {
         )
     ]
 
+    static let movieMatchProfiles: [MatchProfile] = [
+        MatchProfile(
+            name: "Kabir",
+            age: 27,
+            matchScore: 94,
+            interests: ["Sci-fi", "IMAX", "Film scores"],
+            matchReason: "You both book opening weekends and rate sci-fi highly.",
+            ecosystemSignals: [
+                "Booked one ticket for this movie",
+                "Matching District movie history",
+                "Both prefer IMAX evening shows"
+            ]
+        ),
+        MatchProfile(
+            name: "Naina",
+            age: 25,
+            matchScore: 91,
+            interests: ["Cinema", "Thrillers", "Coffee"],
+            matchReason: "Your movie taste and preferred show timings strongly overlap.",
+            ecosystemSignals: [
+                "Booked one ticket for this movie",
+                "Both watch weekend evening shows",
+                "Similar thriller ratings"
+            ]
+        ),
+        MatchProfile(
+            name: "Ishaan",
+            age: 26,
+            matchScore: 89,
+            interests: ["IMAX", "Action", "Film trivia"],
+            matchReason: "You both frequently book premium-format action movies.",
+            ecosystemSignals: [
+                "Booked one ticket for this movie",
+                "Similar District booking history",
+                "Both choose premium screens"
+            ]
+        )
+    ]
+
     static func profile(for category: SocializeCategory) -> MatchProfile {
         switch category {
         case .dining:
@@ -503,18 +599,7 @@ private extension SocializeStore {
                 ]
             )
         case .movies:
-            MatchProfile(
-                name: "Kabir",
-                age: 27,
-                matchScore: 94,
-                interests: ["Sci-fi", "IMAX", "Film scores"],
-                matchReason: "You both book opening weekends and rate sci-fi highly.",
-                ecosystemSignals: [
-                    "Matching District movie history",
-                    "Both prefer IMAX evening shows",
-                    "Shared sci-fi interest"
-                ]
-            )
+            movieMatchProfiles.randomElement() ?? movieMatchProfiles[0]
         case .events:
             MatchProfile(
                 name: "Riya",
