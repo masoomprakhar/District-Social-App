@@ -1,70 +1,65 @@
+//
+//  DistrictTheme.swift
+//  Design tokens for the District-style home screen.
+//
+//  Centralizes color, radius, spacing, and typography so every component
+//  reads from one source. Drop this in first; the other files depend on it.
+//
+
 import SwiftUI
 
-// MARK: - Color tokens
+enum DistrictTheme {
 
-extension Color {
-    /// Near-black page background — #0E0E10
-    static let districtBackground = Color(red: 0.055, green: 0.055, blue: 0.063)
-    /// Elevated card surface — #1A1A1D
-    static let districtSurface = Color(red: 0.102, green: 0.102, blue: 0.114)
-    /// Search bar / lighter fill — #232327
-    static let districtSurfaceHigh = Color(red: 0.137, green: 0.137, blue: 0.153)
-    /// Hairline stroke
-    static let districtStroke = Color.white.opacity(0.07)
-    static let districtTextPrimary = Color.white
-    static let districtTextSecondary = Color.white.opacity(0.55)
-    /// District purple — #8B5CF6, used sparingly (Socialize)
-    static let districtPurple = Color(red: 0.545, green: 0.361, blue: 0.965)
-    /// Darker end of the Socialize gradient
-    static let districtPurpleDeep = Color(red: 0.278, green: 0.176, blue: 0.541)
+    // MARK: Color
 
-    // Muted category icon tints
-    static let districtCoral = Color(red: 0.949, green: 0.463, blue: 0.412)
-    static let districtAmber = Color(red: 0.945, green: 0.690, blue: 0.322)
-    static let districtPink = Color(red: 0.918, green: 0.443, blue: 0.612)
-    static let districtBlue = Color(red: 0.373, green: 0.557, blue: 0.925)
-    static let districtGreen = Color(red: 0.322, green: 0.690, blue: 0.494)
-    static let districtTeal = Color(red: 0.263, green: 0.733, blue: 0.694)
-}
+    enum Palette {
+        /// Near-black app background (#101012).
+        static let background = Color(red: 0.063, green: 0.063, blue: 0.071)
+        /// Elevated card surface, a touch lighter than the background.
+        static let surface = Color(red: 0.106, green: 0.106, blue: 0.118)
+        /// Search bar / secondary fill, lighter still for contrast.
+        static let surfaceRaised = Color(red: 0.145, green: 0.145, blue: 0.157)
+        /// Hairline borders on cards.
+        static let border = Color.white.opacity(0.07)
 
-// MARK: - Typography (scales with Dynamic Type)
+        static let textPrimary = Color.white
+        static let textSecondary = Color.white.opacity(0.55)
+        static let textTertiary = Color.white.opacity(0.38)
 
-extension Font {
-    static let districtSectionTitle: Font = .system(.title3, weight: .bold)
-    static let districtLocationPrimary: Font = .system(.headline, weight: .semibold)
-    static let districtLocationSecondary: Font = .system(.footnote)
-    static let districtCardLabel: Font = .system(.subheadline, weight: .semibold)
-    static let districtMetadata: Font = .system(.caption, weight: .medium)
-    static let districtBadge: Font = .system(.caption2, weight: .semibold)
-    static let districtSpotlightTitle: Font = .system(.title2, weight: .heavy)
-}
+        /// Socialize / brand accent.
+        static let accent = Color(red: 0.545, green: 0.361, blue: 0.965)      // ~#8B5CF6
+        static let accentSoft = Color(red: 0.545, green: 0.361, blue: 0.965).opacity(0.16)
+    }
 
-// MARK: - Radii & spacing
+    // MARK: Shape
 
-enum DistrictRadius {
-    static let searchBar: CGFloat = 18
-    static let categoryCard: CGFloat = 20
-    static let banner: CGFloat = 22
-    static let spotlightCard: CGFloat = 24
-}
+    enum Radius {
+        static let search: CGFloat = 20
+        static let card: CGFloat = 24
+        static let banner: CGFloat = 24
+        static let spotlight: CGFloat = 22
+        static let control: CGFloat = 100   // fully rounded circles/pills
+    }
 
-enum DistrictSpacing {
-    static let pageInset: CGFloat = 20
-    static let section: CGFloat = 26
-    static let gridItem: CGFloat = 12
-}
+    // MARK: Spacing
 
-// MARK: - Motion
-
-/// Subtle premium press feedback: scale to 0.97 with a soft spring.
-struct DistrictPressStyle: ButtonStyle {
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .scaleEffect(configuration.isPressed ? 0.97 : 1.0)
-            .animation(.spring(response: 0.3, dampingFraction: 0.7), value: configuration.isPressed)
+    enum Space {
+        static let screenH: CGFloat = 20    // horizontal screen inset
+        static let section: CGFloat = 28    // between major sections
+        static let grid: CGFloat = 12       // between grid cells
     }
 }
 
-extension ButtonStyle where Self == DistrictPressStyle {
-    static var districtPress: DistrictPressStyle { DistrictPressStyle() }
+// MARK: - Category accent tints (used inside icon chips)
+
+extension DistrictTheme {
+    /// A small vocabulary of tints so the grid feels "colorful" without images.
+    enum CategoryTint {
+        static let dining = Color(red: 1.00, green: 0.42, blue: 0.36)   // coral
+        static let movies = Color(red: 0.55, green: 0.47, blue: 1.00)   // violet
+        static let events = Color(red: 0.98, green: 0.66, blue: 0.24)   // amber
+        static let stores = Color(red: 0.30, green: 0.78, blue: 0.62)   // teal-green
+        static let activities = Color(red: 0.36, green: 0.72, blue: 1.00) // sky
+        static let play = Color(red: 0.98, green: 0.45, blue: 0.68)     // pink
+    }
 }

@@ -1,50 +1,36 @@
+//
+//  SearchBarView.swift
+//
+
 import SwiftUI
 
-/// Large dark search bar used on the home screen.
 struct SearchBarView: View {
-    @Binding var text: String
-    var placeholder: String = "Search for events, movies, restaurants…"
+    let placeholder: String
+    var onTap: () -> Void = {}
 
     var body: some View {
-        HStack(spacing: 12) {
-            Image(systemName: "magnifyingglass")
-                .font(.system(size: 17, weight: .medium))
-                .foregroundStyle(Color.districtTextSecondary)
+        Button(action: onTap) {
+            HStack(spacing: 12) {
+                Image(systemName: "magnifyingglass")
+                    .font(.system(size: 17, weight: .semibold))
+                    .foregroundStyle(DistrictTheme.Palette.textSecondary)
 
-            TextField(
-                "",
-                text: $text,
-                prompt: Text(placeholder).foregroundStyle(Color.districtTextSecondary)
-            )
-            .font(.system(.callout))
-            .foregroundStyle(Color.districtTextPrimary)
-            #if os(iOS)
-            .textInputAutocapitalization(.never)
-            #endif
-            .autocorrectionDisabled()
+                Text(placeholder)
+                    .font(.system(size: 15, weight: .medium))
+                    .foregroundStyle(DistrictTheme.Palette.textSecondary)
+                    .lineLimit(1)
 
-            if !text.isEmpty {
-                Button {
-                    text = ""
-                } label: {
-                    Image(systemName: "xmark.circle.fill")
-                        .font(.system(size: 16))
-                        .foregroundStyle(Color.districtTextSecondary)
-                }
-                .buttonStyle(.plain)
+                Spacer(minLength: 0)
             }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 16)
+            .background(DistrictTheme.Palette.surfaceRaised,
+                        in: RoundedRectangle(cornerRadius: DistrictTheme.Radius.search, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: DistrictTheme.Radius.search, style: .continuous)
+                    .stroke(DistrictTheme.Palette.border, lineWidth: 1)
+            )
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 14)
-        .background(
-            RoundedRectangle(cornerRadius: DistrictRadius.searchBar, style: .continuous)
-                .fill(Color.districtSurfaceHigh)
-        )
+        .buttonStyle(.plain)
     }
-}
-
-#Preview {
-    SearchBarView(text: .constant(""))
-        .padding(DistrictSpacing.pageInset)
-        .background(Color.districtBackground)
 }

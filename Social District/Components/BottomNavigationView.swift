@@ -1,63 +1,76 @@
+//
+//  BottomNavigationView.swift
+//
+
 import SwiftUI
 
-/// Custom dark bottom navigation bar with a top hairline.
+enum AppTab: Int, CaseIterable {
+    case home, search, socialize, bookings, profile
+
+    var title: String {
+        switch self {
+        case .home: "Home"
+        case .search: "Search"
+        case .socialize: "Socialize"
+        case .bookings: "Bookings"
+        case .profile: "Profile"
+        }
+    }
+
+    var systemImage: String {
+        switch self {
+        case .home: "house.fill"
+        case .search: "magnifyingglass"
+        case .socialize: "person.2.fill"
+        case .bookings: "ticket.fill"
+        case .profile: "person.crop.circle.fill"
+        }
+    }
+}
+
 struct BottomNavigationView: View {
-    @Binding var selectedTab: HomeTab
-    var onTapSocialize: () -> Void
+    @Binding var selection: AppTab
 
     var body: some View {
-        HStack {
-            ForEach(HomeTab.allCases) { tab in
+        HStack(spacing: 0) {
+            ForEach(AppTab.allCases, id: \.rawValue) { tab in
+                let isSelected = tab == selection
+                let isSocialize = tab == .socialize
+
                 Button {
-                    if tab == .socialize {
-                        onTapSocialize()
-                    } else {
-                        selectedTab = tab
-                    }
+                    selection = tab
                 } label: {
                     VStack(spacing: 5) {
-                        Image(systemName: tab.symbolName)
-                            .font(.system(size: 20, weight: .medium))
-                        Text(tab.rawValue)
+                        Image(systemName: tab.systemImage)
+                            .font(.system(size: 20, weight: .semibold))
+                        Text(tab.title)
                             .font(.system(size: 10, weight: .semibold))
                     }
-                    .foregroundStyle(color(for: tab))
+                    .foregroundStyle(tint(isSelected: isSelected, isSocialize: isSocialize))
                     .frame(maxWidth: .infinity)
-                    .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
             }
         }
         .padding(.top, 12)
-        .padding(.bottom, 8)
+        .padding(.horizontal, 8)
         .background(
-            Rectangle()
-                .fill(Color.districtSurface.opacity(0.98))
+            DistrictTheme.Palette.surface
                 .overlay(alignment: .top) {
                     Rectangle()
-                        .fill(Color.districtStroke)
+                        .fill(DistrictTheme.Palette.border)
                         .frame(height: 1)
                 }
                 .ignoresSafeArea(edges: .bottom)
         )
     }
 
-    private func color(for tab: HomeTab) -> Color {
-        if tab == .socialize {
-            return selectedTab == .socialize
-                ? Color.districtPurple
-                : Color.districtPurple.opacity(0.8)
+    private func tint(isSelected: Bool, isSocialize: Bool) -> Color {
+        if isSelected {
+            return isSocialize ? DistrictTheme.Palette.accent : DistrictTheme.Palette.textPrimary
         }
-        return selectedTab == tab
-            ? Color.districtTextPrimary
-            : Color.districtTextSecondary
+        return isSocialize
+            ? DistrictTheme.Palette.accent.opacity(0.6)
+            : DistrictTheme.Palette.textTertiary
     }
-}
-
-#Preview {
-    VStack {
-        Spacer()
-        BottomNavigationView(selectedTab: .constant(.home)) {}
-    }
-    .background(Color.districtBackground)
 }

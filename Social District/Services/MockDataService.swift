@@ -8,8 +8,6 @@ final class MockDataService {
     let currentUser: UserProfile
     let profiles: [UserProfile]
     let plans: [GroupPlan]
-    let homeCategories: [HomeCategory]
-    let spotlightItems: [SpotlightItem]
 
     private init() {
         let ananya = UserProfile(
@@ -243,50 +241,6 @@ final class MockDataService {
             )
         ]
 
-        self.homeCategories = [
-            HomeCategory(name: "Dining", symbolName: "fork.knife", tint: .districtCoral),
-            HomeCategory(name: "Movies", symbolName: "movieclapper.fill", tint: .districtAmber),
-            HomeCategory(name: "Events", symbolName: "music.mic", tint: .districtPink),
-            HomeCategory(name: "Stores", symbolName: "bag.fill", tint: .districtBlue),
-            HomeCategory(name: "Activities", symbolName: "figure.hiking", tint: .districtGreen),
-            HomeCategory(name: "Play", symbolName: "sportscourt.fill", tint: .districtTeal)
-        ]
-
-        self.spotlightItems = [
-            SpotlightItem(
-                title: "The Odyssey",
-                badge: "Movie",
-                metadata: "In cinemas now",
-                symbolName: "flame.fill",
-                gradientColors: [
-                    Color(red: 0.42, green: 0.16, blue: 0.10),
-                    Color(red: 0.78, green: 0.38, blue: 0.14),
-                    Color(red: 0.10, green: 0.06, blue: 0.07)
-                ]
-            ),
-            SpotlightItem(
-                title: "Live Music Weekend",
-                badge: "Event",
-                metadata: "Sat–Sun · 7 PM",
-                symbolName: "music.note",
-                gradientColors: [
-                    Color(red: 0.30, green: 0.16, blue: 0.52),
-                    Color(red: 0.48, green: 0.28, blue: 0.76),
-                    Color(red: 0.08, green: 0.05, blue: 0.14)
-                ]
-            ),
-            SpotlightItem(
-                title: "Food Festival",
-                badge: "Dining",
-                metadata: "This weekend",
-                symbolName: "fork.knife",
-                gradientColors: [
-                    Color(red: 0.08, green: 0.38, blue: 0.26),
-                    Color(red: 0.20, green: 0.60, blue: 0.36),
-                    Color(red: 0.04, green: 0.12, blue: 0.08)
-                ]
-            )
-        ]
     }
 
     func plan(withId id: UUID) -> GroupPlan? {

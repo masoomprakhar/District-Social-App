@@ -1,47 +1,52 @@
+//
+//  HomeView.swift
+//  The redesigned District-style home screen.
+//
+
 import SwiftUI
 
 struct HomeView: View {
-    @State private var viewModel = HomeViewModel()
-    @Binding var path: NavigationPath
+    /// Navigation hook: called when the Socialize banner is tapped.
+    /// Wired in RootTabView to push/switch to your existing SocializeHomeView.
+    var onOpenSocialize: () -> Void = {}
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: DistrictSpacing.section) {
+        ScrollView(.vertical, showsIndicators: false) {
+            VStack(spacing: DistrictTheme.Space.section) {
+
                 LocationHeaderView(
-                    locationName: viewModel.locationName,
-                    locationSubtitle: viewModel.locationSubtitle
+                    primary: "Delhi NCR",
+                    secondary: "New Delhi, India"
                 )
-                .padding(.horizontal, DistrictSpacing.pageInset)
+                .padding(.horizontal, DistrictTheme.Space.screenH)
+                .padding(.top, 8)
 
-                SearchBarView(text: $viewModel.searchText)
-                    .padding(.horizontal, DistrictSpacing.pageInset)
+                SearchBarView(
+                    placeholder: "Search for events, movies, restaurants..."
+                )
+                .padding(.horizontal, DistrictTheme.Space.screenH)
 
-                CategoryGridView(categories: viewModel.categories)
-                    .padding(.horizontal, DistrictSpacing.pageInset)
+                CategoryGridView(items: HomeSampleData.categories)
+                    .padding(.horizontal, DistrictTheme.Space.screenH)
 
-                SocializeBannerView {
-                    path.append(AppRoute.socialize)
-                }
-                .padding(.horizontal, DistrictSpacing.pageInset)
+                SocializeBannerView(onTap: onOpenSocialize)
+                    .padding(.horizontal, DistrictTheme.Space.screenH)
 
-                SpotlightSectionView(items: viewModel.spotlightItems)
+                SpotlightSectionView(
+                    title: "In the spotlight",
+                    items: HomeSampleData.spotlight
+                )
+                // No horizontal inset here — the carousel manages its own edge padding.
+
+                Spacer(minLength: 8)
             }
-            .padding(.top, 8)
-            .padding(.bottom, 24)
+            .padding(.bottom, 12)
         }
-        .background(Color.districtBackground.ignoresSafeArea())
-        .safeAreaInset(edge: .bottom, spacing: 0) {
-            BottomNavigationView(selectedTab: $viewModel.selectedTab) {
-                path.append(AppRoute.socialize)
-            }
-        }
-        #if os(iOS)
-        .toolbar(.hidden, for: .navigationBar)
-        #endif
+        .background(DistrictTheme.Palette.background.ignoresSafeArea())
     }
 }
 
 #Preview {
-    @Previewable @State var path = NavigationPath()
-    HomeView(path: $path)
+    HomeView()
+        .preferredColorScheme(.dark)
 }

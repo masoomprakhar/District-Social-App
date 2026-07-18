@@ -1,79 +1,68 @@
+//
+//  SocializeBannerView.swift
+//
+//  Distinctive horizontal entry point for the Socialize feature.
+//  Tapping it should navigate to your existing SocializeHomeView — the
+//  navigation is wired at the call site in HomeView.
+//
+
 import SwiftUI
 
-/// Prominent horizontal entry card for the Socialize feature.
 struct SocializeBannerView: View {
-    let action: () -> Void
+    var onTap: () -> Void = {}
 
     var body: some View {
-        Button(action: action) {
-            HStack(spacing: 14) {
-                RoundedRectangle(cornerRadius: 15, style: .continuous)
-                    .fill(Color.districtPurple.opacity(0.28))
+        Button(action: onTap) {
+            HStack(spacing: 16) {
+                // People icon on an accent chip
+                Image(systemName: "person.2.fill")
+                    .font(.system(size: 22, weight: .semibold))
+                    .foregroundStyle(.white)
                     .frame(width: 52, height: 52)
-                    .overlay {
-                        Image(systemName: "person.2.fill")
-                            .font(.system(size: 21, weight: .semibold))
-                            .foregroundStyle(Color.districtPurple)
-                    }
+                    .background(DistrictTheme.Palette.accent,
+                                in: RoundedRectangle(cornerRadius: 16, style: .continuous))
 
-                VStack(alignment: .leading, spacing: 3) {
+                VStack(alignment: .leading, spacing: 5) {
                     HStack(spacing: 8) {
                         Text("Socialize")
-                            .font(.system(.headline, weight: .bold))
-                            .foregroundStyle(Color.districtTextPrimary)
+                            .font(.system(size: 17, weight: .bold))
+                            .foregroundStyle(DistrictTheme.Palette.textPrimary)
 
                         Text("NEW")
-                            .font(.districtBadge)
-                            .tracking(0.5)
-                            .foregroundStyle(.white)
+                            .font(.system(size: 10, weight: .heavy))
+                            .foregroundStyle(DistrictTheme.Palette.accent)
                             .padding(.horizontal, 7)
                             .padding(.vertical, 3)
-                            .background(Color.districtPurple)
-                            .clipShape(Capsule())
+                            .background(DistrictTheme.Palette.accentSoft,
+                                        in: Capsule())
                     }
-
                     Text("Find people to go out with")
-                        .font(.districtLocationSecondary)
-                        .foregroundStyle(Color.districtTextSecondary)
+                        .font(.system(size: 13, weight: .medium))
+                        .foregroundStyle(DistrictTheme.Palette.textSecondary)
                 }
-                .lineLimit(1)
 
                 Spacer(minLength: 8)
 
                 Image(systemName: "chevron.right")
-                    .font(.system(size: 14, weight: .semibold))
-                    .foregroundStyle(Color.districtTextSecondary)
+                    .font(.system(size: 14, weight: .bold))
+                    .foregroundStyle(DistrictTheme.Palette.textSecondary)
             }
             .padding(16)
-            .background(
-                RoundedRectangle(cornerRadius: DistrictRadius.banner, style: .continuous)
-                    .fill(
-                        LinearGradient(
-                            colors: [
-                                Color.districtPurple.opacity(0.22),
-                                Color.districtPurpleDeep.opacity(0.16),
-                                Color.districtSurface
-                            ],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
+            .background {
+                ZStack {
+                    DistrictTheme.Palette.surface
+                    LinearGradient(
+                        colors: [DistrictTheme.Palette.accent.opacity(0.18), .clear],
+                        startPoint: .leading, endPoint: .trailing
                     )
-            )
-            .background(
-                RoundedRectangle(cornerRadius: DistrictRadius.banner, style: .continuous)
-                    .fill(Color.districtSurface)
-            )
-            .overlay {
-                RoundedRectangle(cornerRadius: DistrictRadius.banner, style: .continuous)
-                    .stroke(Color.districtStroke, lineWidth: 1)
+                }
+                .clipShape(RoundedRectangle(cornerRadius: DistrictTheme.Radius.banner, style: .continuous))
             }
+            .overlay(
+                RoundedRectangle(cornerRadius: DistrictTheme.Radius.banner, style: .continuous)
+                    .stroke(DistrictTheme.Palette.accent.opacity(0.35), lineWidth: 1)
+            )
         }
-        .buttonStyle(.districtPress)
+        .buttonStyle(PressableButtonStyle())
     }
-}
-
-#Preview {
-    SocializeBannerView {}
-        .padding(DistrictSpacing.pageInset)
-        .background(Color.districtBackground)
 }
