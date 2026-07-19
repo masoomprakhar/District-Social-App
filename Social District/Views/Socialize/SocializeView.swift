@@ -50,7 +50,7 @@ struct SocializeHomeView: View {
                 }
 
                 modeStatusCard
-                createGroupButton
+                hostActions
 
                 if !pendingRooms.isEmpty || !pendingExperiences.isEmpty {
                     pendingRequestsSection
@@ -89,12 +89,25 @@ struct SocializeHomeView: View {
         #endif
     }
 
-    private var createGroupButton: some View {
+    private var hostActions: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 8) {
+                Image(systemName: "person.crop.circle.badge.plus")
+                    .foregroundStyle(DistrictTheme.Palette.accent)
+                Text("Host your own plan")
+                    .font(.system(size: 15, weight: .bold))
+                    .foregroundStyle(DistrictTheme.Palette.textPrimary)
+            }
+
+            Text("Choose the event, set the group size, then approve who joins.")
+                .font(.system(size: 11, weight: .medium))
+                .foregroundStyle(DistrictTheme.Palette.textSecondary)
+
         HStack(spacing: 10) {
             Button {
                 showingCreateGroup = true
             } label: {
-                Label("Create group", systemImage: "plus.circle.fill")
+                Label("Host an event", systemImage: "calendar.badge.plus")
                     .font(.system(size: 14, weight: .bold))
                     .foregroundStyle(.white)
                     .frame(maxWidth: .infinity)
@@ -120,6 +133,16 @@ struct SocializeHomeView: View {
                     )
             }
             .buttonStyle(PressableButtonStyle())
+        }
+        }
+        .padding(16)
+        .background(
+            DistrictTheme.Palette.surface,
+            in: RoundedRectangle(cornerRadius: 20, style: .continuous)
+        )
+        .overlay {
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                .stroke(DistrictTheme.Palette.border, lineWidth: 1)
         }
     }
 

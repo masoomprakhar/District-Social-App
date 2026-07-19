@@ -262,6 +262,16 @@ struct RoomDetailView: View {
                 Color(red: 0.40, green: 0.14, blue: 0.16),
                 Color(red: 0.78, green: 0.34, blue: 0.24)
             ]
+        case .event:
+            [
+                Color(red: 0.42, green: 0.25, blue: 0.08),
+                Color(red: 0.88, green: 0.54, blue: 0.14)
+            ]
+        case .activity:
+            [
+                Color(red: 0.08, green: 0.30, blue: 0.44),
+                Color(red: 0.18, green: 0.62, blue: 0.78)
+            ]
         }
     }
 

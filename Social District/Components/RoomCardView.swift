@@ -91,6 +91,8 @@ struct RoomCardView: View {
         switch room.activityType {
         case .movie: DistrictTheme.CategoryTint.movies
         case .dining: DistrictTheme.CategoryTint.dining
+        case .event: DistrictTheme.CategoryTint.events
+        case .activity: DistrictTheme.CategoryTint.activities
         }
     }
 }

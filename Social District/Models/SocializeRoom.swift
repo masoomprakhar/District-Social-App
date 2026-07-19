@@ -36,6 +36,8 @@ struct HostJoinRequest: Identifiable, Hashable {
 enum SocializeActivityType: String, Codable, CaseIterable, Identifiable, Hashable {
     case movie
     case dining
+    case event
+    case activity
 
     var id: String { rawValue }
 
@@ -43,6 +45,8 @@ enum SocializeActivityType: String, Codable, CaseIterable, Identifiable, Hashabl
         switch self {
         case .movie: "Movies"
         case .dining: "Dining"
+        case .event: "Events"
+        case .activity: "Activities"
         }
     }
 
@@ -50,6 +54,8 @@ enum SocializeActivityType: String, Codable, CaseIterable, Identifiable, Hashabl
         switch self {
         case .movie: "Movie"
         case .dining: "Dining"
+        case .event: "Event"
+        case .activity: "Activity"
         }
     }
 
@@ -57,6 +63,8 @@ enum SocializeActivityType: String, Codable, CaseIterable, Identifiable, Hashabl
         switch self {
         case .movie: "movieclapper.fill"
         case .dining: "fork.knife"
+        case .event: "ticket.fill"
+        case .activity: "figure.run"
         }
     }
 }

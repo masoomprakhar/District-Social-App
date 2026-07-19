@@ -3,6 +3,7 @@ import SwiftUI
 struct HostDashboardView: View {
     @EnvironmentObject private var store: SocializeStore
     @Binding var path: NavigationPath
+    @State private var showingCreateEvent = false
 
     private var pendingRequests: [HostJoinRequest] {
         store.hostJoinRequests.filter { $0.status == .pending }
@@ -21,6 +22,7 @@ struct HostDashboardView: View {
                 }
 
                 stats
+                createEventButton
 
                 VStack(alignment: .leading, spacing: 12) {
                     Text("Join requests")
@@ -64,10 +66,50 @@ struct HostDashboardView: View {
             .padding(.bottom, 110)
         }
         .background(DistrictTheme.Palette.background.ignoresSafeArea())
+        .sheet(isPresented: $showingCreateEvent) {
+            CreateRoomView { room in
+                DispatchQueue.main.async {
+                    path.append(AppRoute.roomDetail(room.id))
+                }
+            }
+            .environmentObject(store)
+        }
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         .toolbarBackground(DistrictTheme.Palette.background, for: .navigationBar)
         #endif
+    }
+
+    private var createEventButton: some View {
+        Button {
+            showingCreateEvent = true
+        } label: {
+            HStack(spacing: 12) {
+                Image(systemName: "calendar.badge.plus")
+                    .font(.system(size: 19, weight: .semibold))
+                    .frame(width: 42, height: 42)
+                    .background(.white.opacity(0.16), in: RoundedRectangle(cornerRadius: 13))
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Host a new event")
+                        .font(.system(size: 15, weight: .bold))
+                    Text("Set the venue, date, group size, and price")
+                        .font(.system(size: 11, weight: .medium))
+                        .opacity(0.75)
+                }
+
+                Spacer()
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 12, weight: .bold))
+            }
+            .foregroundStyle(.white)
+            .padding(15)
+            .background(
+                DistrictTheme.Palette.accent,
+                in: RoundedRectangle(cornerRadius: 18, style: .continuous)
+            )
+        }
+        .buttonStyle(PressableButtonStyle())
     }
 
     private var stats: some View {

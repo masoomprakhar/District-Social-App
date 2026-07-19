@@ -26,16 +26,16 @@ struct CreateRoomView: View {
             ScrollView(.vertical, showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 22) {
                     VStack(alignment: .leading, spacing: 7) {
-                        Text("Create a group")
+                        Text("Host an event")
                             .font(.system(size: 28, weight: .heavy))
                             .foregroundStyle(DistrictTheme.Palette.textPrimary)
-                        Text("Choose the plan. We’ll grow the discount as people join.")
+                        Text("Set the plan, venue, time, group size, and price. You’ll review every join request.")
                             .font(.system(size: 14, weight: .medium))
                             .foregroundStyle(DistrictTheme.Palette.textSecondary)
                     }
 
-                    fieldSection("Activity") {
-                        Picker("Activity", selection: $activityType) {
+                    fieldSection("Event type") {
+                        Picker("Event type", selection: $activityType) {
                             ForEach(SocializeActivityType.allCases) { type in
                                 Label(type.title, systemImage: type.symbolName)
                                     .tag(type)
@@ -47,7 +47,7 @@ struct CreateRoomView: View {
                     fieldSection("Plan details") {
                         VStack(spacing: 12) {
                             darkTextField(
-                                activityType == .movie ? "Movie title" : "Dinner theme",
+                                titlePrompt,
                                 text: $title
                             )
                             darkTextField("Venue", text: $venueName)
@@ -67,11 +67,11 @@ struct CreateRoomView: View {
                         .tint(DistrictTheme.Palette.accent)
                     }
 
-                    fieldSection("Group and price") {
+                    fieldSection("Group size & price") {
                         VStack(spacing: 16) {
-                            Stepper(value: $capacity, in: 2...8) {
+                            Stepper(value: $capacity, in: 2...20) {
                                 HStack {
-                                    Text("Capacity")
+                                    Text("Maximum group size")
                                     Spacer()
                                     Text("\(capacity) people")
                                         .foregroundStyle(DistrictTheme.Palette.accent)
@@ -117,7 +117,7 @@ struct CreateRoomView: View {
                         onCreated(room)
                         dismiss()
                     } label: {
-                        Text("Create group")
+                        Label("Publish event", systemImage: "calendar.badge.plus")
                             .font(.system(size: 16, weight: .bold))
                             .foregroundStyle(.white)
                             .frame(maxWidth: .infinity)
@@ -144,6 +144,15 @@ struct CreateRoomView: View {
             }
         }
         .preferredColorScheme(.dark)
+    }
+
+    private var titlePrompt: String {
+        switch activityType {
+        case .movie: "Movie title"
+        case .dining: "Dinner or restaurant plan"
+        case .event: "Event title"
+        case .activity: "Activity title"
+        }
     }
 
     private var discountPreview: some View {
